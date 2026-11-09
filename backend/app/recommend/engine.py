@@ -126,7 +126,12 @@ def recommend(
         for req in requests or []:
             c = resolver(req, ctx)
             if c is not None:
-                opt = _finish(c, base_score(c, 1.0, weights), 0.0, OptionStatus.REQUESTED)
+                status = (
+                    OptionStatus.NEEDS_APPROVAL
+                    if c.option.status == OptionStatus.NEEDS_APPROVAL
+                    else OptionStatus.REQUESTED
+                )
+                opt = _finish(c, base_score(c, 1.0, weights), 0.0, status)
                 pinned.append(opt.model_copy(update={"request_id": req.id}))
         for c in candidates(ctx):
             pool.append((c, base_score(c, 0.0, weights)))

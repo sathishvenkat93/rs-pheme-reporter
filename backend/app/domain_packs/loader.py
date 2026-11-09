@@ -37,8 +37,15 @@ class SignatureVisual(StrictModel):
 
 
 class Derived(StrictModel):
+    """Something users ask for that needs specific fields.
+
+    ``kind: field`` is raw data the file lacks (e.g. CPU usage: the Field-exists check);
+    ``kind: metric`` is computed from fields (e.g. MTTR: the Derivation check).
+    """
+
     label: str
     needs: list[FieldName] = Field(min_length=1)
+    kind: Literal["metric", "field"] = "metric"
 
 
 class DomainPack(StrictModel):

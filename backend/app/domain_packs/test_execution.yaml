@@ -39,7 +39,8 @@ synonyms:
   suite: [suite, suites, test suite, module]
   build: [build, builds, run, runs, build number, ci run]
   status: [status, result, results, outcome]
-  duration_ms: [duration, time, run time, runtime, test duration, execution time]
+  duration_ms: [duration, run time, runtime, test duration, execution time]
+  timestamp: [time, date, when, over time, run date]
   error_type: [error, errors, error type, failure reason, reason, exception]
   failed_count: [failures, failed, failing tests, failed tests, failure count]
   pass_rate: [pass rate, pass percentage, success rate, passing]
@@ -51,3 +52,4 @@ concepts:
 derived:
   mttr: {label: mean time to recovery, needs: [failed_at, fixed_at]}
   coverage: {label: code coverage, needs: [lines_covered, lines_total]}
+  cpu: {label: CPU usage, needs: [cpu_pct], kind: field}

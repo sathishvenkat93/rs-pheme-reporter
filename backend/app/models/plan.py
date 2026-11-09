@@ -9,7 +9,7 @@ from uuid import UUID
 
 from pydantic import Field, model_validator
 
-from app.models.chart import VisualOption
+from app.models.chart import ChartRequest, VisualOption
 from app.models.common import FieldName, Identifier, StrictModel
 from app.models.query import Filter, Measure
 from app.models.spec import Annotation, Encoding, GlobalFilter, Threshold, WidgetType
@@ -99,7 +99,7 @@ class DecisionChoice(StrEnum):
 
 class Decision(StrictModel):
     id: str = Field(min_length=1, max_length=64)
-    item: Identifier
+    item: str = Field(min_length=1, max_length=64)  # an option id or a request id
     reason: str = Field(min_length=1)
     options: list[DecisionChoice] = Field(min_length=1)
     choice: DecisionChoice | None = None
@@ -126,6 +126,7 @@ class DraftPlan(StrictModel):
     session_id: UUID
     version: int = Field(ge=1)
     options: list[VisualOption] = Field(default_factory=list)
+    requests: list[ChartRequest] = Field(default_factory=list)
     measures: list[Measure] = Field(default_factory=list)
     filters: list[GlobalFilter] = Field(default_factory=list)
     layout_hints: list[str] = Field(default_factory=list)
@@ -136,10 +137,12 @@ class DraftPlan(StrictModel):
         ids = [o.id for o in self.options]
         if len(ids) != len(set(ids)):
             raise ValueError("duplicate option ids")
-        known = set(ids)
+        known = set(ids) | {r.id for r in self.requests}
         for d in self.decisions:
             if d.item not in known:
-                raise ValueError(f"decision {d.id!r} refers to unknown option {d.item!r}")
+                raise ValueError(
+                    f"decision {d.id!r} refers to unknown option or request {d.item!r}"
+                )
         if len({d.id for d in self.decisions}) != len(self.decisions):
             raise ValueError("duplicate decision ids")
         return self

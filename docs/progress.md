@@ -14,7 +14,7 @@ Status of the build plan in [PHEME_IMPLEMENTATION.md](../PHEME_IMPLEMENTATION.md
 - [x] M4 Profiler
 - [x] M5 Query
 - [x] M6 Recommender
-- [ ] M7 Feasibility
+- [x] M7 Feasibility
 - [ ] Gate passed
 
 ## Phase 3 — Agent and dashboards

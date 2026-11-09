@@ -34,10 +34,11 @@ synonyms:
   threads: [users, threads, concurrent users, virtual users, vus]
   response_code: [status code, http status, response code]
   bytes: [size, bytes, payload, response size]
+  timestamp: [time, date, when, over time]
 concepts:
   performance: [p95, throughput, error_rate]
   speed: [p95, avg_latency]
   reliability: [error_rate, error_count]
 derived:
-  cpu: {label: CPU usage, needs: [cpu_pct]}
-  memory: {label: memory usage, needs: [memory_mb]}
+  cpu: {label: CPU usage, needs: [cpu_pct], kind: field}
+  memory: {label: memory usage, needs: [memory_mb], kind: field}

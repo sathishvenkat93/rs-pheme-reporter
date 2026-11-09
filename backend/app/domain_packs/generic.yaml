@@ -7,3 +7,4 @@ synonyms:
   orders: [traffic, volume, sales count]
 derived:
   mttr: {label: mean time to recovery, needs: [opened_at, resolved_at]}
+  cpu: {label: CPU usage, needs: [cpu_pct], kind: field}

@@ -119,6 +119,22 @@ export type Total = number;
 export type OptionStatus = "recommended" | "optional" | "requested" | "needs_approval" | "excluded";
 export type Title = string;
 export type Options1 = VisualOption[];
+export type Aggregation = string | null;
+export type ChartType = string | null;
+/**
+ * This interface was referenced by `DraftPlan`'s JSON-Schema
+ * via the `definition` "FieldRoleHint".
+ */
+export type FieldRoleHint = "x" | "y" | "split" | "measure" | "size";
+export type Text = string;
+export type FieldPhrases = FieldPhrase[];
+export type FilterPhrases = string[];
+export type Id5 = string;
+export type RawText = string;
+export type Source = "user" | "agent";
+export type TimeGrain1 = string | null;
+export type TopN1 = number | null;
+export type Requests = ChartRequest[];
 export type SessionId = string;
 export type Version = number;
 
@@ -129,6 +145,7 @@ export interface DraftPlan {
   layout_hints?: LayoutHints;
   measures?: Measures;
   options?: Options1;
+  requests?: Requests;
   session_id: SessionId;
   version: Version;
 }
@@ -299,4 +316,31 @@ export interface ScoreBreakdown {
   perception: Perception;
   redundancy: Redundancy;
   total: Total;
+}
+/**
+ * An unresolved request. ``chart_type`` is free text so unsupported types can be expressed.
+ *
+ * This interface was referenced by `DraftPlan`'s JSON-Schema
+ * via the `definition` "ChartRequest".
+ */
+export interface ChartRequest {
+  aggregation?: Aggregation;
+  chart_type?: ChartType;
+  field_phrases?: FieldPhrases;
+  filter_phrases?: FilterPhrases;
+  id: Id5;
+  raw_text: RawText;
+  source?: Source;
+  time_grain?: TimeGrain1;
+  top_n?: TopN1;
+}
+/**
+ * The user's own words for a field, before the M7 resolver maps them to a column.
+ *
+ * This interface was referenced by `DraftPlan`'s JSON-Schema
+ * via the `definition` "FieldPhrase".
+ */
+export interface FieldPhrase {
+  role?: FieldRoleHint | null;
+  text: Text;
 }

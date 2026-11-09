@@ -1,5 +1,104 @@
 {
   "$defs": {
+    "ChartRequest": {
+      "additionalProperties": false,
+      "description": "An unresolved request. ``chart_type`` is free text so unsupported types can be expressed.",
+      "properties": {
+        "aggregation": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Aggregation"
+        },
+        "chart_type": {
+          "anyOf": [
+            {
+              "maxLength": 100,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Chart Type"
+        },
+        "field_phrases": {
+          "items": {
+            "$ref": "#/$defs/FieldPhrase"
+          },
+          "title": "Field Phrases",
+          "type": "array"
+        },
+        "filter_phrases": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Filter Phrases",
+          "type": "array"
+        },
+        "id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "raw_text": {
+          "maxLength": 2000,
+          "minLength": 1,
+          "title": "Raw Text",
+          "type": "string"
+        },
+        "source": {
+          "default": "user",
+          "enum": [
+            "user",
+            "agent"
+          ],
+          "title": "Source",
+          "type": "string"
+        },
+        "time_grain": {
+          "anyOf": [
+            {
+              "maxLength": 50,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Time Grain"
+        },
+        "top_n": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Top N"
+        }
+      },
+      "required": [
+        "id",
+        "raw_text"
+      ],
+      "title": "ChartRequest",
+      "type": "object"
+    },
     "Decision": {
       "additionalProperties": false,
       "properties": {
@@ -59,7 +158,8 @@
           "type": "string"
         },
         "item": {
-          "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$",
+          "maxLength": 64,
+          "minLength": 1,
           "title": "Item",
           "type": "string"
         },
@@ -227,6 +327,45 @@
       ],
       "title": "EqFilter",
       "type": "object"
+    },
+    "FieldPhrase": {
+      "additionalProperties": false,
+      "description": "The user's own words for a field, before the M7 resolver maps them to a column.",
+      "properties": {
+        "role": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/FieldRoleHint"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "text": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Text",
+          "type": "string"
+        }
+      },
+      "required": [
+        "text"
+      ],
+      "title": "FieldPhrase",
+      "type": "object"
+    },
+    "FieldRoleHint": {
+      "enum": [
+        "x",
+        "y",
+        "split",
+        "measure",
+        "size"
+      ],
+      "title": "FieldRoleHint",
+      "type": "string"
     },
     "GlobalFilter": {
       "additionalProperties": false,
@@ -988,6 +1127,13 @@
         "$ref": "#/$defs/VisualOption"
       },
       "title": "Options",
+      "type": "array"
+    },
+    "requests": {
+      "items": {
+        "$ref": "#/$defs/ChartRequest"
+      },
+      "title": "Requests",
       "type": "array"
     },
     "session_id": {

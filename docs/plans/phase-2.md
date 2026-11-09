@@ -87,3 +87,8 @@ Tests: table-driven over every R5 row; the can_build flip; every reason < 25 wor
 - **M6** — Scatter above 10k rows is sampled to 5,000 points via the query limit (binned scatter isn't a widget type). Histograms query value counts for the renderer to bin.
 - **M6** — The top-N dimension is chosen by one shared helper (`compiler.top_n_dimension`): the first dimension that isn't the time axis, counting `build` with the build grain as a time axis. The property test found the compiler and the guard disagreeing on this.
 - **M6** — Requests are resolved by exact column or measure names in M6; M7's resolver plugs in through `RequestResolver`.
+- **M7** — `DraftPlan` gained `requests: list[ChartRequest]`, and `Decision.item` may name a request: a not-feasible request has no option for its decision to point at.
+- **M7** — Domain-pack `derived` entries have `kind: field | metric`. A missing raw field (CPU usage) fails the Field-exists check; a computed metric with missing inputs (MTTR) fails the Derivation check.
+- **M7** — Fuzzy matching uses three bands: ≥ 0.86 resolves, 0.60–0.86 is ambiguous (needs_clarification with the top 3), < 0.60 is missing (not_feasible). The plan's single threshold would have sent "CPU usage" to clarification instead of "not in this data". Candidates that all derive from one field resolve to that field.
+- **M7** — The Volume adjustment samples 10,000 points (the renderer guard), not R5's 50k: binned scatter isn't an MVP widget.
+- **M7** — Ambiguity is detected while resolving fields (a vague word with several candidates), so it can stop before later checks; a request with no fields at all is caught at the end, as R5 orders.
