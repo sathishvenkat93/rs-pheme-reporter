@@ -5,7 +5,7 @@
 
 Pheme is a chat-driven agent that turns uploaded logs and statistics into dashboards. The agent proposes the best charts for the data and flags requests it can't build as asked. The user refines the plan in chat and approves it. Pheme then saves a dashboard the user can revisit and edit through chat.
 
-This file is the complete build plan for the MVP. It splits the work into **5 build phases** containing 12 milestones, each with its scope and a "Done when" list, followed by reference tables. Claude Code builds one phase at a time. At the end of each phase it **stops at a phase gate** and waits for the user's go-ahead before starting the next.
+This file is the complete build plan for the MVP. It splits the work into **5 build phases** containing 14 milestones, each with its scope and a "Done when" list, followed by reference tables. Claude Code builds one phase at a time. At the end of each phase it **stops at a phase gate** and waits for the user's go-ahead before starting the next.
 
 If `docs/architecture.md` exists (exported from the design doc), it is the fuller design. Where it and this file disagree, ask before choosing.
 
@@ -17,19 +17,20 @@ The build runs in 5 phases (section 5). Complete one phase, then stop at its gat
 
 **Starting a phase**
 
+0. Create a branch `phase-<N>` from an up-to-date `main` (Phase 1 starts from the branch that holds the corrected plan).
 1. If `docs/progress.md` exists, check that every earlier phase is complete. If one isn't, stop and tell me.
 2. Read section 2 (design rules), section 3 (stack and layout), the phase's section with all its milestones, and every reference table they cite (R1–R10 in section 6).
 3. Write the phase plan to `docs/plans/phase-<N>.md`. For each milestone, list the files to create or change, key interfaces, the tests you'll write and the risks. If the plan raises a question only I can answer, stop and ask; otherwise carry on. If I asked for "plan only", stop here.
 
 **During the phase**
 
-4. Build the phase's milestones in the order listed. For each milestone: implement it with tests, run `make check` until green, verify its "Done when" items, tick it in `docs/progress.md`, and make one conventional commit (e.g. `feat(m3): ingestion and parsers`).
+4. Build the phase's milestones in the order listed. For each milestone: implement it with tests, run `make check` until green, verify its "Done when" items, tick it in `docs/progress.md`, make one conventional commit (e.g. `feat(m3): ingestion and parsers`), and push the branch so CI runs.
 5. Don't stop between milestones of the same phase unless you hit a blocker that needs my decision.
 
 **Phase gate (end of every phase)**
 
 6. Run `make check` (plus `make e2e` from Phase 4 onward), and verify the phase's exit criteria.
-7. Write `docs/reports/phase-<N>.md` covering: what was built; how you verified each "Done when" item and exit criterion; deviations from this plan; open issues; and decisions I need to make. Commit it.
+7. Write `docs/reports/phase-<N>.md` covering: what was built; how you verified each "Done when" item and exit criterion; deviations from this plan; open issues; and decisions I need to make. Commit it, push, confirm CI is green on the branch, and open a PR `phase-<N>` → `main` whose description summarises the report. I merge the PR; never merge it yourself.
 8. **Stop and end your turn** with:
    - a short summary of the report;
    - an outline of the next phase: its milestones, and anything you need from me first;
@@ -49,9 +50,9 @@ Rules while working:
 
 ## 2. Design rules (never break these)
 
-1. **The LLM plans; code executes.** The LLM never receives raw logs, only dataset profiles and at most 50 PII-masked sample rows. It never writes rendering code and never puts raw SQL into a spec.
+1. **The LLM plans; code executes.** The LLM never receives raw logs, only dataset profiles and at most 50 PII-masked sample rows. It never writes rendering code and never writes SQL; specs hold only measure expressions in Pheme's own whitelisted grammar (M2), which code compiles.
 2. **The Dashboard Spec is the single source of truth.** It is JSON, schema-validated and versioned. Every change, from chat or from the UI, is a JSON Patch op addressed by widget id.
-3. **The approval gate is enforced in code.** `build_dashboard` is only exposed in the APPROVED state, which needs zero open decisions plus an explicit approval from the user.
+3. **The approval gate is enforced in code.** `build_dashboard` is only exposed in the APPROVED state, which needs zero open decisions plus an explicit approval from the user. The only way into APPROVED is `POST /sessions/{id}/approve`, called by the user's own click (the "Approve plan" button, or the confirm card the agent shows when a chat message asks to approve). The LLM can never approve.
 4. **Every user-requested chart or edit passes the feasibility validator** before it enters a plan or a spec.
 5. **Each orchestrator state exposes only its own tools** to the LLM.
 6. **Deterministic services never call the LLM.** Ingestion, profiling, recommendation rules, feasibility checks, query compilation and layout are pure, tested code.
@@ -63,7 +64,7 @@ Rules while working:
 
 **Stack**
 
-- Backend: Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2 + Alembic, PostgreSQL, Redis + RQ, MinIO (S3 API), DuckDB + Parquet, Polars, lxml, sqlglot, rapidfuzz, Anthropic Python SDK. Package manager: uv.
+- Backend: Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2 + Alembic, PostgreSQL, Redis + RQ, MinIO (S3 API), DuckDB + Parquet, Polars (+ fastexcel for .xlsx), lxml, rapidfuzz, Anthropic Python SDK. Package manager: uv.
 - Frontend: Vite + React + TypeScript, TanStack Query, react-grid-layout, Apache ECharts, Tailwind. Package manager: pnpm.
 - Quality: pytest (+ hypothesis), Vitest, Playwright, ruff, mypy (strict for `backend/app/models` and `backend/app/core`), eslint, tsc.
 - Models come from env vars: `PHEME_MODEL_MAIN` (default `claude-sonnet-5-5`) for orchestration and curation, and `PHEME_MODEL_FAST` (default `claude-haiku-5-5`) for intent parsing and classification.
@@ -115,6 +116,13 @@ The design left these open. The plan uses the defaults below. If one changes, up
 | Approval granularity | Per-item approval cards + one "Approve plan" action | M7, M10 |
 | Orchestration | Own state machine on the Anthropic SDK (not LangGraph or the Agent SDK) | M8 |
 | Job queue | RQ on Redis | M1, M3 |
+| Unstructured text logs | Post-MVP; unknown formats return a readable "unsupported" message | M3 |
+| Build number for test results | Optional `build` field on the upload, else `<properties>` in the XML, else a number in the filename, else upload order | M3, M9 |
+| Live data mode | Append: each upload to a dataset creates a new DatasetVersion that holds all earlier parts plus the new one. Live dashboards follow the latest version; snapshots pin one | M2, M3, M9 |
+| MVP widget types | The 12 types in M2. R3 and R5 only propose these; other chart families are post-MVP and requests for them are "Renderer support" not_feasible | M2, M6, M7 |
+| Identity before M12 | A `current_principal` dependency returns a dev user and workspace from config; every workspace-owned table has `workspace_id` from M2 | M1, M2, M12 |
+| Advanced SQL escape hatch | Post-MVP; nothing in Pheme accepts hand-written SQL | M5 |
+| Git flow | Branch `phase-<N>`, one commit per milestone, push, PR at the gate; the user merges | All |
 
 ---
 
@@ -126,7 +134,7 @@ The design left these open. The plan uses the defaults below. If one changes, up
 | 2 — Data intelligence | M4, M5, M6, M7 | `make demo-data` prints, for each fixture: the profile summary, the domain, the top 10 candidates with scores, and verdicts for every R5 example |
 | 3 — Agent and dashboards | M8, M9 | With FakeLLM, an API-level test runs the whole flow: session → options → flagged request → resolve → approve → build → chat edit → undo → refresh; one live-LLM run is recorded |
 | 4 — User interface | M10, M11 | The same flow works in the browser, and a Playwright smoke test covers upload → approve → dashboard renders |
-| 5 — Hardening and evaluation | M12 | Workspace-isolation tests pass; the full e2e test passes in CI; the eval report is compared with the Gate 1 targets (R10) |
+| 5 — Hardening and evaluation | M12, M13, M14 | Workspace-isolation tests pass; the full e2e test passes in CI; the eval report is compared with the Gate 1 targets (R10) |
 
 Build the milestones inside a phase in the order listed. Stop at every phase gate (section 1, steps 6–9).
 
@@ -145,18 +153,19 @@ Build:
 - The folder layout from section 3, with empty packages.
 - **CLAUDE.md** at the repo root containing: a one-paragraph description of Pheme; the lines "The build plan is PHEME_IMPLEMENTATION.md; current status is in docs/progress.md; follow section 1 of the plan. Work one phase at a time, stop at every phase gate, and never start a phase without an explicit go-ahead."; and sections 2 and 3 of this file copied verbatim.
 - Backend: FastAPI app with `GET /health` that checks Postgres, Redis and MinIO; settings from env via pydantic-settings; uv project; ruff, mypy and pytest configured.
+- A `current_principal` FastAPI dependency that returns the dev user and workspace from config. Every later endpoint takes it; M12 swaps in real auth.
 - `docker-compose.yml` with postgres, redis and minio (bucket auto-created), healthchecks, named volumes, and a complete `.env.example`.
 - Alembic initialised against Postgres with an empty baseline migration.
 - RQ worker entrypoint (`backend/app/jobs/worker.py`) with one no-op job and a test that runs it.
 - Frontend: Vite + React + TypeScript + Tailwind with a two-pane shell (chat on the left, canvas on the right) and a `/library` route; Vitest and eslint configured.
 - Makefile targets: dev, check, e2e, types, eval and demo-data (the last four can be placeholders for now).
-- A GitHub Actions workflow that runs `make check` on every push.
+- A GitHub Actions workflow that runs `make check` on every push, with Postgres, Redis and MinIO as service containers.
 - `docs/progress.md` with a checklist grouped by phase, with a "gate passed" line per phase:
   - Phase 1 Foundation: M1 Bootstrap, M2 Models, M3 Ingestion
   - Phase 2 Data intelligence: M4 Profiler, M5 Query, M6 Recommender, M7 Feasibility
   - Phase 3 Agent and dashboards: M8 Orchestrator, M9 Dashboards & edits
   - Phase 4 User interface: M10 UI chat & proposals, M11 UI dashboard & library
-  - Phase 5 Hardening and evaluation: M12
+  - Phase 5 Hardening and evaluation: M12 Security & audit, M13 Observability & limits, M14 Evaluation & e2e
 - Empty `docs/plans/` and `docs/reports/` folders.
 - README with setup in 20 lines or fewer.
 
@@ -176,18 +185,25 @@ Goal: define the domain model every other milestone depends on.
 
 Build in `backend/app/models/` (Pydantic v2, strict, documented):
 
-- Dataset, DatasetVersion, ColumnProfile, DatasetProfile. Column role enum: time, measure, count, duration, ratio, category, identifier, status, text, geo, hierarchy_level.
-- SemanticQuery (dataset, dimensions, measures, filters, time_grain, sort, top_n, limit) and Measure (id, plus an expr in a small whitelisted grammar: count, count_if, sum, avg, min, max, percentile, ratio).
-- ChartRequest.
+- Dataset, DatasetVersion, ColumnProfile, DatasetProfile. A DatasetVersion lists its Parquet parts (append mode, section 4) and stores both the schema_hash and the column list (name, type), so a superset check is possible. Column role enum: time, measure, count, duration, ratio, category, identifier, status, text, geo, hierarchy_level.
+- SemanticQuery (dataset, dimensions, measures, filters, time_grain, sort as a list of `{field, dir}`, top_n, limit) and Measure (id, expr, format). Filters: eq, in, range, relative time (anchored to the dataset's latest timestamp by default, or to now) and last_n over an ordinal dimension (e.g. "last 7 builds").
+- The measure grammar. It is Pheme's own expression language, parsed into an AST and never evaluated or passed through as SQL:
+  - aggregates: `count()`, `count_if(<pred>)`, `count_distinct(f)`, `sum(f)`, `avg(f)`, `min(f)`, `max(f)`, `percentile(f, p)`
+  - combinators: `ratio(<m>, <m>)`, and `rate(<m>, 'second' | 'minute')` for per-time throughput
+  - named domain measures, valid only on their canonical table: `apdex(f, t_ms)` (perf_samples), `flaky_rate()` (test_results: share of cases that both passed and failed within one build)
+  - predicates: `field <op> literal` with ops `==, !=, <, <=, >, >=`, `field in [..]`, combined with `and`, `or`, `not`
+  
+  Example: `ratio(count_if(status == 'passed'), count())`.
+- ChartRequest: the user's unresolved request. Fields: raw_text; chart_type as a free string (so "3d globe" can be represented; normalised to a widget type when one matches); field_phrases (user words with a role hint: x, y, split, measure, size); aggregation hint; filter phrases; time_grain hint; top_n; source (user | agent). Fields are resolved to columns only by the M7 resolver.
 - VisualOption: id, title, chart_type, fields, query, encoding, rationale, score breakdown, and status (recommended | optional | requested | needs_approval | excluded).
 - Verdict: feasible | adjusted | not_feasible | needs_clarification, with reasons, alternatives and applied_change.
 - DraftPlan with PlanOp (add, remove, change_type, change_encoding, filter, derive_metric, layout, style, annotate), and Decision (item, reason, options, choice, decided_by, decided_at).
-- DashboardSpec matching R2: datasets (mode snapshot | live), filters, measures, layout (12-column grid), widgets, annotations, thresholds and provenance. Widget types: kpi, line, area, bar, stacked_bar, donut, histogram, box, scatter, heatmap, pareto, table.
+- DashboardSpec matching R2. Top level: dashboard_id, title, datasets (mode snapshot | live; snapshot pins `version_id`), filters, measures, layout (12-column grid) and widgets. Per widget: id, type, title, query, encoding, options, target, thresholds, annotations and provenance. The version number is not part of the spec body; it lives on DashboardVersion and in the API envelope. Widget types: kpi (optional target and sparkline), line, area, bar, stacked_bar, donut, histogram, box, scatter, heatmap, pareto, table. Options cover series splits, stacking (incl. 100%), horizontal bars, binning and log scale.
 - Widget-id patch ops (paths like `/widgets/{widget_id}/type`), with functions to translate them to RFC 6902 index paths, apply them, and invert them for undo.
 
 Also:
 
-- SQLAlchemy tables + an Alembic migration for: workspaces, users, uploads, datasets, dataset_versions, profiles, parser_profiles, sessions, messages, draft_plans, plan_versions, decisions, dashboards, dashboard_versions, audit_events. Use JSONB for specs, plans and profiles. dashboard_versions is append-only.
+- SQLAlchemy tables + an Alembic migration for: workspaces, users, uploads, datasets, dataset_versions, profiles, parser_profiles, sessions, messages, draft_plans, plan_versions, decisions, dashboards, dashboard_versions, audit_events. Use JSONB for specs, plans and profiles. dashboard_versions is append-only, with a unique (dashboard_id, version). Every workspace-owned table has a non-null `workspace_id`.
 - Export JSON Schemas for DashboardSpec and DraftPlan to `backend/app/models/schemas/`, and make `make types` generate TypeScript types from them into `frontend/src/api`.
 
 Done when:
@@ -203,7 +219,8 @@ Goal: turn uploaded files into typed, versioned datasets.
 
 Build in `backend/app/ingestion/`:
 
-- `POST /uploads` (multipart, streamed to MinIO, sha256 recorded, size limit from config, default 200 MB) creates an Upload and enqueues an RQ ingestion job. `GET /uploads/{id}` returns the status, any errors and the resulting dataset ids.
+- `POST /sessions` (minimal: creates a session in INGEST; the state machine arrives in M8).
+- `POST /uploads` (multipart, streamed to MinIO, sha256 recorded, size limit from config, default 200 MB) creates an Upload and enqueues an RQ ingestion job. Optional form fields: `session_id`, `dataset_id` (append to that dataset as a new version) and `build`. `GET /uploads/{id}` returns the status, any errors and the resulting dataset ids.
 - Format detector: uses the extension plus the first 64 KB (XML root element, JSON vs NDJSON, CSV delimiter, JMeter JTL header) to return (format, confidence).
 - Parsers: CSV/TSV, JSON, NDJSON, Excel (.xlsx), JUnit/xUnit XML (nested testsuites; passed, failed, error, skipped) and JMeter JTL (CSV and XML variants).
 - Normalizers to canonical tables:
@@ -211,17 +228,17 @@ Build in `backend/app/ingestion/`:
   - `perf_samples(timestamp, label, latency_ms, success, bytes, threads, response_code)`
   - a generic typed table for everything else
   
-  Durations become ms. Timestamps become UTC, with the original timezone kept in a column. Statuses are standardised (pass/ok/success → passed, and so on).
+  Durations become ms. Timestamps become UTC, with the original timezone kept in a column (naive timestamps use the configured default zone). Statuses are standardised (pass/ok/success → passed, and so on). `build` follows the precedence in section 4. Large XML is read with `lxml.iterparse`; CSV with Polars batched/lazy reads.
 - Write each dataset to MinIO as Parquet. Register Dataset + DatasetVersion with a schema_hash (a stable hash of column names and types), the row count and lineage back to the upload.
 - `POST /sessions/{id}/context` accepts free text such as "p95 must be < 800 ms, env=staging". Store it raw, and extract simple key=value and threshold facts with regex. LLM extraction arrives in M8.
 - Unknown text logs return format=unknown with a readable message. Learned parsers (Drain3 + LLM) come after the MVP; leave `TODO(post-mvp)`.
 
 Fixtures in `backend/tests/fixtures/`:
 
-- a JUnit XML file with 3 suites and some failures across 5 builds
-- a JMeter JTL CSV with about 2,000 rows
-- one CSV file and one JSON file
-- one malformed file per format
+- JUnit XML: 5 files (builds 101–105), 3 suites, at least 30 distinct cases, failures in at least 12 distinct cases with at least 3 error types, and some cases that both pass and fail in one build (flaky). Three files carry the build in `<properties>`, two only in the filename.
+- JMeter: a JTL CSV with about 2,000 rows over 8 labels and some errors, plus a small JTL XML.
+- Generic: a CSV with daily dates over about 90 days, a JSON array file, an NDJSON file and a small .xlsx.
+- One malformed file per format.
 
 Done when:
 
@@ -234,9 +251,9 @@ Done when:
 
 Milestones M4–M7: profiling, safe querying, chart recommendation and feasibility checks. All deterministic; no LLM calls in this phase.
 
-**Phase deliverable:** `make demo-data` (`scripts/demo_data.py`). For each fixture it prints the profile summary, the detected domain, the top 10 candidates with score breakdowns, and the verdict plus alternative for every example request in R5.
+**Phase deliverable:** `make demo-data` (`scripts/demo_data.py`). For each fixture it prints the profile summary, the detected domain, the top 10 candidates with score breakdowns, and the verdict plus alternative for every example request in R5. Because text parsing only arrives with the LLM in M8, the R5 requests are hand-written ChartRequests; the Volume row uses a synthetic 8M-row profile.
 
-**Exit criteria:** `make demo-data` output matches the M6 and M7 "Done when" expectations, and `make check` is green. Then stop at the phase gate.
+**Exit criteria:** `make demo-data` output matches the M6 and M7 "Done when" expectations, and `make check` is green. Then stop at the phase gate. In the gate's "anything you need from me", ask for pilot datasets and expert top-8 labels (R10), so evaluation data exists well before Phase 5.
 
 #### M4 — Profiler and domain packs
 
@@ -248,11 +265,11 @@ Build in `backend/app/profiling/` and `backend/app/domain_packs/`:
 
 - `profile_dataset(dataset_version_id) -> DatasetProfile`, computed with DuckDB over the Parquet file:
   - Per column: semantic role, null %, distinct count, min/max/mean/p50/p95, skew and top-k values. For time columns, also span, median gap (granularity) and a monotonic flag.
-  - Per dataset: row count, grain guess, candidate keys, hierarchies (e.g. suite → case), correlations between measures, outliers (IQR), trend strength per measure over time (Mann-Kendall or slope/variance) and simple change points.
+  - Per dataset: row count, grain guess, candidate keys, hierarchies (e.g. suite → case), correlations between measures, outliers (IQR), trend strength per measure over time (Mann-Kendall or slope/variance, computed on a series bucketed to at most 500 points) and simple change points.
 - Role inference rules from name, type and values, written as data rather than if/else chains. Examples: `*_ms` or "duration" → duration; ≤ 6 distinct values in a column named status or result → status; mostly-unique strings → identifier.
 - Domain classifier: rules over the canonical table kind and column names return test_execution | performance | app_logs | cicd | generic, with a confidence. Leave a hook for LLM confirmation in M8.
 - Domain packs as YAML: KPIs (id, label, measure expr, format, good direction), signature visuals (chart type + field roles) and field synonyms. Write full packs for test_execution and performance, and stubs for app_logs, cicd and generic.
-- Size guard: a serialised profile is ≤ 5 KB for a 50-column dataset (truncate top-k lists, round numbers).
+- The full profile is stored. `llm_view(profile)` produces the compact form the LLM sees. Size guard: the serialised LLM view is ≤ 5 KB for a 50-column dataset (short keys, truncated top-k, rounded numbers, only the strongest correlations).
 - `GET /datasets/{id}/profile`.
 
 Done when:
@@ -268,24 +285,24 @@ Goal: one safe path from a SemanticQuery to rows, used by the agent, the builder
 
 Build in `backend/app/query/`:
 
-- `compile(SemanticQuery, dataset schema)` → DuckDB SQL over the dataset's Parquet file. It supports:
+- `compile(SemanticQuery, dataset schema)` → DuckDB SQL over the dataset version's Parquet parts. Identifiers are checked against the schema and quoted; literals are always bound parameters. It supports:
   - dimensions
-  - measures from the whitelisted grammar: count, count_if, sum, avg, min, max, percentile(p), and the ratio of two measures
-  - filters: eq, in, range and relative time
+  - every measure in the M2 grammar; percentiles use `quantile_cont` (linear interpolation)
+  - filters: eq, in, range, relative time and last_n
   - time_grain bucketing: minute, hour, day, week, plus an ordinal "build" grain
-  - sort, top_n with an "Other" bucket, and limit
-- A small parser for measure expressions (no eval). Anything outside the grammar is rejected with a clear message.
-- `execute()`: a read-only DuckDB connection with a 30 s timeout and a row cap from config. It returns columns, rows and a query_hash.
-- A result cache in Redis keyed by (query_hash, dataset_version_id).
-- Advanced SQL escape hatch: validate with sqlglot (exactly one SELECT, no DDL/DML, only this dataset's table, whitelisted functions, no file or network table functions), then run it with the same limits.
+  - sort, top_n with an "Other" bucket, and limit. For additive measures (count, count_if, sum) "Other" is the sum of the rest; for all others it is recomputed over the remaining rows.
+- A parser for measure expressions into an AST (no eval). Anything outside the grammar is rejected with a clear message.
+- `execute()`: Parquet parts come from a local read-through cache of MinIO objects, so DuckDB never needs httpfs. Each connection disables external access except for the allowed paths of that dataset version's files, and locks its configuration. A 30 s timeout via `interrupt()` on a timer, and a row cap from config. It returns columns, rows and a query_hash.
+- A result cache in Redis keyed by (query_hash, dataset_version_id). The workspace check runs before the cache lookup.
+- No hand-written SQL path in the MVP (`TODO(post-mvp)`: sqlglot-validated escape hatch).
 - An LTTB downsampling helper for time series over 2,000 points.
 - `POST /query`, scoped to the caller's workspace.
 
 Done when:
 
-- Golden tests pass: pass rate by build (JUnit fixture) and p95 latency per label (JTL fixture) match values computed independently in the test with Polars.
-- Injection tests are rejected: stacked statements, DROP/INSERT, `read_csv('/etc/passwd')`, `read_parquet` on another path, and httpfs URLs.
-- top_n plus "Other" always sums to the ungrouped total (property test).
+- Golden tests pass: pass rate by build (JUnit fixture) and p95 latency per label (JTL fixture) match values computed independently in the test with Polars (`interpolation="linear"`).
+- Injection tests are rejected: field names and filter values carrying SQL payloads (stacked statements, DROP/INSERT, comments) are refused or bound safely; and a raw `read_csv('/etc/passwd')`, a `read_parquet` on another path, and an httpfs URL run directly on an executor connection all fail.
+- For additive measures, top_n plus "Other" sums to the ungrouped total; for non-additive measures, "Other" equals the measure computed over the excluded rows (property tests).
 - A cached query returns without touching DuckDB (assert with a spy).
 
 #### M6 — Recommendation engine
@@ -299,6 +316,8 @@ Build in `backend/app/recommend/`:
 - Chart grammar: one declarative rule per row of R3. Each rule emits candidate VisualOptions with a ready SemanticQuery and encoding.
 - Enforce every guard rule in R3.
 - Scoring exactly as in R4, with the weights in config.
+- Requested charts are pinned: a requested chart whose verdict is feasible or adjusted ranks above every non-requested candidate, in request order. Its score is still computed and shown.
+- Only MVP widget types (M2) are emitted, using the mapping in R3.
 - Domain-pack KPIs become KPI-tile candidates automatically.
 - `recommend(dataset_ids, requests: list[ChartRequest] | None, k=25)` returns ranked candidates. Each has its per-term score breakdown and the profile facts behind it.
 
@@ -321,7 +340,8 @@ Build in `backend/app/feasibility/`:
 - Field resolver: maps the user's words to columns by exact match, then domain-pack synonyms (e.g. "response time" → latency_ms), then fuzzy match (rapidfuzz). It returns candidates with a confidence. Below the threshold it returns needs_clarification with the top 3 candidates. Keep an interface so embedding similarity can be added later.
 - `check(ChartRequest, profile) -> Verdict` runs the checks in R5 in order. Each failing check gives a plain-language reason, plus at least one alternative ChartRequest when one exists.
 - Adjusted verdicts carry the exact change applied (e.g. pie → top-10 bar + Other), so the UI can show before and after.
-- Decisions: create one per adjusted or not_feasible verdict. API: `GET /plans/{id}/decisions`, and `POST /decisions/{id}` with a choice of accept_alternative | keep_as_asked | drop | provide_data. keep_as_asked is only allowed when the original request is buildable.
+- Decisions: create one per adjusted, not_feasible or needs_clarification verdict; all of them block approval while open. Choices: accept_alternative | keep_as_asked | drop | provide_data, plus choose_candidate for needs_clarification (pick one of the resolver's candidates). keep_as_asked is only allowed when the original request is buildable. provide_data resolves the decision and parks the item as "waiting for data" (excluded from the build, listed in the plan); a later upload that supplies the field re-runs the check.
+- Service functions only in this milestone; the plan and decision endpoints (`GET /plans/{id}/decisions`, `POST /decisions/{id}`) are wired in M8, when plans become persistent.
 - `can_build(plan) -> (bool, open decision ids)`.
 
 Done when:
@@ -344,9 +364,12 @@ Goal: the chat agent that drives a session from upload to an approved plan.
 
 Build in `backend/app/orchestrator/`:
 
-- A state machine persisted per session, as in R1. Transitions and guards live in code. Any plan change after APPROVED returns the session to REFINE and clears the approval.
+- A state machine persisted per session, as in R1. Transitions and guards live in code. Any plan change after APPROVED returns the session to REFINE and clears the approval. A chat message asking to approve only makes the agent show a confirm card; the transition happens only through `POST /sessions/{id}/approve`.
+- `POST /sessions` with a `dashboard_id` starts a session in PUBLISHED on that dashboard, so a dashboard reopened from the library can be edited by chat.
+- Plan and decision endpoints: `GET /plans/{id}`, `GET /plans/{id}/decisions`, `POST /decisions/{id}`.
 - Tools: those in R7, as typed functions (Pydantic in and out), registered per state. Only the current state's tools are sent to the model. `build_dashboard`, `resolve_widget` and `patch_dashboard` are stubs until M9 (`TODO(M9)`).
-- `llm.py`: a thin client over the Anthropic Python SDK tool-use loop, with max tool iterations, timeouts and retries. Add a FakeLLM that replays scripted responses for tests.
+- `llm.py`: a thin client over the Anthropic Python SDK tool-use loop, with max tool iterations, timeouts and retries. Add a FakeLLM for tests that answers from rules matched on (state, task, user-message pattern, tools offered), not a fixed replay order, so harmless changes in tool order don't break tests. `PHEME_LLM=fake` makes the running app use it (for e2e).
+- Redaction placeholders that the LLM echoes back (e.g. in a title or filter value) are restored server-side before anything is written to a plan or spec.
 - Fast-model tasks: intent parsing (text → ChartRequest[] and PlanOp[], several intents per message), domain confirmation and context-fact extraction. Validate the structured output with Pydantic. On invalid output, retry once with the validation error, then ask the user.
 - Main-model tasks:
   - Curation: pick 6–10 of the top 25 candidates and order them KPI row → trends → breakdowns → distributions → detail. Give each a one-line rationale and the insight it is expected to show.
@@ -357,7 +380,7 @@ Build in `backend/app/orchestrator/`:
 - Chat API:
   - `POST /sessions`
   - `POST /sessions/{id}/messages` (text, plus optional selected widget ids)
-  - `GET /sessions/{id}/events` as SSE, streaming assistant tokens, tool progress, the options list, plan diffs, approval cards and state changes
+  - `GET /sessions/{id}/events` as SSE, streaming assistant tokens, tool progress, the options list, plan diffs, approval cards and state changes. Events go through a Redis Stream per session (workers publish to it too), and `Last-Event-ID` replays missed events so a session resumes on any device.
   - `POST /sessions/{id}/approve`
 - Persist messages, tool calls, plan versions and decisions.
 
@@ -365,7 +388,7 @@ Done when:
 
 - With FakeLLM, a session on the JUnit fixture reaches PROPOSE with a curated options list.
 - "Show a pie of failures by test" yields a needs_approval option. Approval is refused while that decision is open and accepted once it's resolved.
-- A test proves `build_dashboard` is never in the tool list before APPROVED.
+- A test proves `build_dashboard` is never in the tool list before APPROVED, and that no LLM output (including a message saying "approved") moves the session to APPROVED.
 - Redaction test: none of the secrets seeded into a fixture appear in any captured LLM request.
 - One live run (`PHEME_LIVE_LLM=1`) on the JUnit fixture is recorded in `docs/progress.md`, with the transcript and token cost.
 
@@ -399,12 +422,12 @@ Build in `backend/app/dashboards/`:
   - `resolve_widget` works from selected ids or from words (title, type, fields, position), and asks when more than one widget matches.
   - The LLM proposes patch ops, which are validated and returned with before/after preview data.
   - Edits commit only when the user applies them. A bulk edit ("use p95 in every latency chart") produces one version.
-- Data modes and refresh: a dashboard binds in snapshot or live mode. Attaching a new upload to a live dashboard runs ingest → schema compatibility check (same hash or a superset) → re-query. On a mismatch, return a proposed field mapping instead of failing.
+- Data modes and refresh: a dashboard binds in snapshot mode (pinned dataset version) or live mode (latest version). Attaching a new upload to a live dashboard appends it as a new dataset version: ingest → schema compatibility check (same hash, or a superset of the stored column list) → re-query. On a mismatch, return a proposed field mapping instead of failing.
 
 Done when:
 
 - Building from the M8 test session produces a valid spec in which every widget returns data.
-- One FakeLLM edit scenario per row of R8 passes, and undo restores the previous spec byte for byte.
+- One FakeLLM edit scenario per row of R8 passes, and undo (a restore, which creates a new version) yields a spec body byte-for-byte identical to the previous version's.
 - Of two concurrent patches on the same base_version, one succeeds and the other gets 409.
 - Uploading a second JUnit file to a live dashboard adds its build to the pass-rate-by-build chart.
 
@@ -412,7 +435,7 @@ Done when:
 
 Milestones M10–M11: the chat and proposal experience, then the dashboard canvas, library and editing.
 
-**Phase deliverable:** a Playwright smoke test (FakeLLM) covering upload → options appear → approve → dashboard renders, wired into `make e2e`. M12 extends it into the full end-to-end test.
+**Phase deliverable:** a Playwright smoke test (FakeLLM) covering upload → options appear → approve → dashboard renders, wired into `make e2e`. M14 extends it into the full end-to-end test.
 
 **Exit criteria:** the Phase 3 flow works by hand in the browser; `make e2e` and `make check` are green. Then stop at the phase gate.
 
@@ -467,35 +490,58 @@ Done when:
 
 ### Phase 5 — Hardening and evaluation
 
-Milestone M12: auth and isolation, audit, observability, limits, the evaluation harness and the full end-to-end test.
+Milestones M12–M14: auth and isolation, audit, observability, limits, the evaluation harness and the full end-to-end test.
 
 **Exit criteria:** workspace-isolation tests pass; the full e2e test passes in CI; `make eval` has produced a report, and its numbers are compared with the Gate 1 targets in R10. Then stop at the final gate: summarise MVP readiness and list what you recommend for the next release.
 
-#### M12 — Security, observability, evaluation, end-to-end test
+#### M12 — Security and audit
 
-Reference: R10.
-
-Goal: make the MVP safe to pilot and measurable.
+Goal: make the MVP safe to pilot.
 
 Build:
 
-- Auth: the simplest option that can grow into SSO later, e.g. OIDC via an off-the-shelf library, with email login for local dev. Every endpoint is scoped to the workspace. Workspace-owned tables use Postgres row-level security. Dashboards get owner / editor / viewer roles and a share endpoint.
+- Auth: the simplest option that can grow into SSO later, e.g. OIDC via an off-the-shelf library, with email login for local dev. It replaces the dev `current_principal` from M1. Every endpoint is scoped to the workspace.
+- Postgres row-level security on every workspace-owned table. The app connects as a dedicated non-owner role (never a superuser or table owner, which bypass RLS) and sets the workspace with `SET LOCAL` in each transaction. Object-storage paths and Redis cache keys are workspace-checked in code, since RLS doesn't cover them.
+- Dashboards get owner / editor / viewer roles and a share endpoint.
 - Audit: every tool call, approval, decision and patch is written to audit_events; add `GET /dashboards/{id}/audit`.
+
+Done when:
+
+- A user in workspace A can't read or change anything in workspace B, with tests at both the API and database level.
+- Viewers can't patch; editors can't share or delete.
+
+#### M13 — Observability and limits
+
+Build:
+
 - Observability:
   - OpenTelemetry traces across API → orchestrator → tools → Postgres/DuckDB
   - LLM spans recording the model, input/output tokens, latency and estimated cost
   - structured JSON logs
   - an optional Langfuse exporter behind an env flag
 - Limits: per-workspace rate limits and upload size limits.
+
+Done when:
+
+- One traced request shows spans from the API through the orchestrator and a tool to DuckDB, and an LLM span carries tokens and cost.
+- Exceeding the rate limit returns 429 with Retry-After.
+
+#### M14 — Evaluation and end-to-end test
+
+Reference: R10.
+
+Goal: make the MVP measurable.
+
+Build:
+
 - Evaluation harness in `backend/eval/`:
-  - A golden-set folder format: the log file, the expected domain, the expert top-8 options, labelled infeasible requests with their expected verdicts, and edit scenarios with their expected spec diffs.
-  - A runner that reports every metric in R10.
-  - Seed it with the fixtures. Real-LLM runs happen only with `PHEME_LIVE_LLM=1`. Write results to `backend/eval/reports/<date>.md`.
+  - A golden-set folder format: the log file, the expected domain, the expert top-8 options (from at least two experts where possible), labelled infeasible requests with their expected verdicts, and edit scenarios with their expected spec diffs.
+  - A runner that reports every automatable metric in R10. Recommendation quality compares the final curated list's top 8 with the expert set, and also reports expert-to-expert agreement as the baseline. Edit success is human-rated, so the runner writes a rating sheet instead of a number.
+  - Seed it with the fixtures and the pilot datasets requested at the Phase 2 gate. Real-LLM runs happen only with `PHEME_LIVE_LLM=1`. Write results to `backend/eval/reports/<date>.md`.
 - Playwright e2e test (FakeLLM, runs in CI): upload JUnit → options appear → ask for an infeasible chart → resolve the flag → approve → dashboard renders → edit via chat → undo → reopen from the library.
 
 Done when:
 
-- A user in workspace A can't read or change anything in workspace B, with tests at both the API and database level.
 - `make e2e` passes in CI.
 - `make eval` produces a report. The first numbers are recorded in `docs/progress.md` and compared with the Gate 1 targets in R10.
 
@@ -511,26 +557,28 @@ REFINE → [gate: user approves AND zero open decisions] → APPROVED → BUILD 
 gate fails → back to REFINE
 PUBLISHED → EDIT (resolve widget → patch → validate → preview → commit vN+1) → PUBLISHED
 PUBLISHED → REFRESH (new upload, same spec, re-query) → PUBLISHED
+Library → new session on an existing dashboard → PUBLISHED
 ```
 
 Guards, enforced in code:
 
 - Each state exposes only its own tools to the LLM (see R7).
-- APPROVED requires zero open decisions and an explicit approve event (a button, or a chat message the agent confirms).
+- APPROVED requires zero open decisions and an explicit approve event from the user: `POST /sessions/{id}/approve`, sent by the "Approve plan" button or by the confirm card the agent shows when a chat message asks to approve. The LLM cannot trigger it.
 - Any plan change after approval returns to REFINE, and the user must approve again.
 - `patch_dashboard` requires base_version == the current version.
 - Ingest and build run as async jobs that stream progress. State is persisted so a session can resume on any device.
 
 ### R2 — Dashboard Spec example
 
+The spec body below has no version number; the version lives on DashboardVersion and in the API envelope (`{"version": 3, "spec": {...}}`).
+
 ```json
 {
   "dashboard_id": "dsh_7f3a",
-  "version": 3,
   "title": "Regression run — Sprint 42",
-  "datasets": [{"id": "ds_tests", "kind": "test_results", "schema_hash": "a91c…", "mode": "live"}],
-  "filters": [{"id": "f_env", "field": "environment", "control": "multiselect"}],
-  "measures": [{"id": "pass_rate", "expr": "count_if(status = 'passed') / count()", "format": "percent"}],
+  "datasets": [{"id": "ds_tests", "kind": "test_results", "schema_hash": "a91c…", "mode": "live", "version_id": null}],
+  "filters": [{"id": "f_suite", "field": "suite", "control": "multiselect"}],
+  "measures": [{"id": "pass_rate", "expr": "ratio(count_if(status == 'passed'), count())", "format": "percent"}],
   "layout": {"columns": 12, "items": [
     {"widget": "w_pass_kpi",   "x": 0, "y": 0, "w": 3, "h": 2},
     {"widget": "w_pass_trend", "x": 3, "y": 0, "w": 9, "h": 4}
@@ -540,8 +588,8 @@ Guards, enforced in code:
      "query": {"dataset": "ds_tests", "measures": ["pass_rate"]},
      "target": 0.95, "thresholds": [{"below": 0.90, "color": "critical"}]},
     {"id": "w_pass_trend", "type": "line", "title": "Pass rate by build",
-     "query": {"dataset": "ds_tests", "dimensions": ["build_no"], "measures": ["pass_rate"], "sort": "build_no"},
-     "encoding": {"x": "build_no", "y": "pass_rate"},
+     "query": {"dataset": "ds_tests", "dimensions": ["build"], "measures": ["pass_rate"], "sort": [{"field": "build", "dir": "asc"}]},
+     "encoding": {"x": "build", "y": "pass_rate"},
      "annotations": [{"type": "rule", "y": 0.95, "label": "Target"}],
      "provenance": {"option_id": "O2", "rationale": "Trend across 14 builds"}}
   ]
@@ -550,28 +598,30 @@ Guards, enforced in code:
 
 ### R3 — Chart grammar (candidate rules)
 
-| Data pattern | Candidate charts | Guard rule |
-| --- | --- | --- |
-| One measure, no dimension | KPI tile, gauge, bullet chart | Gauge or bullet only when a target is known |
-| Time + measure | Line, area, column, sparkline | At least 3 time points; column only up to ~30 periods |
-| Time + measure + category | Multi-line, stacked area, small multiples | More than 7 series → top N + "Other", or small multiples |
-| Category + measure | Sorted bar, lollipop, Pareto | More than 20 categories → top N |
-| Part of a whole | 100% stacked bar, donut, treemap | Donut only up to 6 parts |
-| One continuous measure | Histogram, box/violin, ECDF | At least 30 rows |
-| Measure spread by category | Box plot, strip plot | At least 5 rows per category |
-| Two measures | Scatter (optionally coloured by category), hexbin | Above ~10k points → hexbin or sample |
-| Two categories + measure | Heatmap, grouped bar | Grouped bar only for small × small |
-| Events with start and end | Gantt / timeline | Needs both timestamps |
-| Source → target flows | Sankey | Needs paired fields |
-| Hierarchy + measure | Treemap, sunburst | Needs a detected hierarchy |
-| Row-level detail | Sortable table with conditional formatting | Always available |
+The recommender emits only the MVP widget types in the second column. Post-MVP charts are listed so that requests for them get a "Renderer support" verdict with the MVP alternative.
+
+| Data pattern | MVP widgets (spec type + options) | Post-MVP | Guard rule |
+| --- | --- | --- | --- |
+| One measure, no dimension | kpi (with target when known, optional sparkline) | gauge, bullet | Target display only when a target is known |
+| Time + measure | line, area, bar (as columns) | — | At least 3 time points; bar only up to ~30 periods |
+| Time + measure + category | line with series split, area stacked | small multiples | More than 7 series → top N + "Other" |
+| Category + measure | bar (sorted, horizontal), pareto | lollipop | More than 20 categories → top N |
+| Part of a whole | stacked_bar (100%), donut | treemap | Donut only up to 6 parts |
+| One continuous measure | histogram, box | violin, ECDF | At least 30 rows |
+| Measure spread by category | box | strip plot | At least 5 rows per category |
+| Two measures | scatter (optionally coloured by category), heatmap (binned) | hexbin | Above ~10k points → binned heatmap or a 50k-row sample |
+| Two categories + measure | heatmap, bar with series split | — | Split bar only for small × small |
+| Events with start and end | table | Gantt / timeline | Needs both timestamps |
+| Source → target flows | table, heatmap (source × target) | Sankey | Needs paired fields |
+| Hierarchy + measure | bar per level, stacked_bar | treemap, sunburst | Needs a detected hierarchy |
+| Row-level detail | table with conditional formatting | — | Always available |
 
 ### R4 — Scoring
 
 `S = 0.30·DataFit + 0.25·Intent + 0.20·Insight + 0.15·Perception + 0.10·DomainPrior − Redundancy − Clutter` (weights in config)
 
 - **DataFit:** how well the field roles, cardinality and row count fit the chart's grammar.
-- **Intent:** match to what the user asked for. An explicitly requested chart scores 1.0.
+- **Intent:** match to what the user asked for. An explicitly requested chart scores 1.0, and is also pinned above all non-requested candidates (M6), because the weighted sum alone can't guarantee its rank.
 - **Insight:** evidence in the profile that the chart will show something (trend strength, spread across categories, outliers, change points). A flat line scores low.
 - **Perception:** encoding effectiveness, following the Cleveland–McGill ranking (position > length > angle > area > colour).
 - **DomainPrior:** a boost for the active domain pack's signature visuals.
@@ -588,12 +638,12 @@ Checks run in this order. Verdicts: feasible (added as is), adjusted (added; the
 | Type fit | "Line chart of test names" | not_feasible | Bar chart of runs per test |
 | Granularity | "Hourly trend", but timestamps are daily | adjusted | Daily trend |
 | Cardinality | "Pie of failures by test", with 240 tests | adjusted | Top-10 bar + "Other" |
-| Volume | Scatter of 8 M samples | adjusted | Hexbin, or a 50k-row sample |
+| Volume | Scatter of 8 M samples | adjusted | Binned heatmap, or a 50k-row sample |
 | Derivation | "MTTR", but there's no resolution time | not_feasible | Explain which field would be needed |
-| Renderer support | "3D globe of traffic" | not_feasible | Map or bar chart by region |
+| Renderer support | "3D globe of traffic" | not_feasible | Bar chart by region |
 | Ambiguity | "Show performance" | needs_clarification | Ask: latency, throughput or errors? |
 
-Decision choices: accept_alternative, keep_as_asked (only if the original is buildable), drop, provide_data.
+Decision choices: accept_alternative, keep_as_asked (only if the original is buildable), drop, provide_data (parks the item until new data arrives), and choose_candidate for needs_clarification. Every open decision blocks approval.
 
 ### R6 — Plan intents (chat refinement)
 
@@ -652,8 +702,8 @@ Turn handling: one message may hold several intents, which are applied together.
 | --- | --- | --- |
 | test_execution | Pass rate, failed count, flaky rate, total and average duration | Status breakdown, pass-rate trend by build, slowest tests (top N), failure-reason Pareto, flaky-test heatmap (test × run) |
 | performance | Throughput, p50/p90/p95/p99 latency, error rate, Apdex | Percentile lines over time, response-time histogram, throughput vs users, errors by endpoint, SLA breach table |
-| app_logs (stub) | Error rate, events per minute, top error signatures | Log-level stacked area, error-signature Pareto, hour × weekday heatmap, incident timeline |
-| cicd (stub) | Build success rate, lead time, stage duration, queue time | Stage-duration Gantt, success trend, duration box plot per stage |
+| app_logs (stub) | Error rate, events per minute, top error signatures | Log-level stacked area, error-signature Pareto, hour × weekday heatmap, incident table |
+| cicd (stub) | Build success rate, lead time, stage duration, queue time | Stage-duration stacked bar, success trend, duration box plot per stage |
 | generic (stub) | Derived from the profile | Distribution, comparison, correlation and composition sets |
 
 ### R10 — Evaluation targets
@@ -661,10 +711,10 @@ Turn handling: one message may hold several intents, which are applied together.
 | Metric | How it's measured | Target |
 | --- | --- | --- |
 | Parse coverage | Share of lines parsed | ≥ 98% known formats (≥ 90% for learned parsers, post-MVP) |
-| Recommendation quality | Overlap of the top 8 picks with the expert set | ≥ 70% |
+| Recommendation quality | Overlap of the curated top 8 with the expert set | ≥ 70%, or within 10 points of expert-to-expert agreement if that is lower |
 | Spec validity | Share of generated specs that validate and render | ≥ 99% |
 | Feasibility accuracy | Precision / recall on labelled "can't build" requests | ≥ 95% / ≥ 90% |
-| Edit success | Edits applied correctly on the first try (human-rated) | ≥ 90% |
+| Edit success | Edits applied correctly on the first try (human-rated from the M14 rating sheet) | ≥ 90% |
 | Time to first proposal | Upload (≤ 50 MB) to options list | < 30 s |
 | Dashboard reopen | Render from cache | < 2 s |
 
