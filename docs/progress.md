@@ -34,11 +34,13 @@ Status of the build plan in [PHEME_IMPLEMENTATION.md](../PHEME_IMPLEMENTATION.md
 - [x] M12 Security & audit
 - [x] M13 Observability & limits
 - [x] M14 Evaluation & e2e
-- [ ] Gate passed
+- [x] Gate passed (approved 2026-11-09; final gate — MVP complete. CI, the live-LLM run and the pilot evaluation still pending)
 
 ## Notes
 
 - 2026-11-09: Plan corrected before Phase 1 (commit "docs(plan): resolve contradictions…"). MinIO images are no longer published; SeaweedFS replaces it locally (user decision).
+- 2026-11-09 (after Phase 5): the real LLM is Claude in Amazon Bedrock (`PHEME_LLM=bedrock`, `anthropic.`-prefixed model ids), replacing the Anthropic API key (user decision). Bedrock has no server-side refusal fallbacks, so a refusal is reported to the user. The git push / CI plan is set aside for now (user decision).
+- 2026-11-09: README rewritten as a local setup guide; migration 0005 now reads `PHEME_APP_DB_PASSWORD` from settings (it ignored `.env` before).
 
 ## Evaluation (first numbers, 2026-11-09)
 
@@ -57,4 +59,4 @@ Status of the build plan in [PHEME_IMPLEMENTATION.md](../PHEME_IMPLEMENTATION.md
 
 **Gate 1** ("pilot datasets produce valid dashboards, and feasibility precision ≥ 95%") is met **on the seed goldens only**. The expert lists were written by the build agent and the data is synthetic, so this isn't yet evidence about pilot data. It needs pilot datasets with independent expert labels, plus one live-LLM run.
 
-Live-LLM run: not yet recorded (no API key configured). Command: `PHEME_LIVE_LLM=1 uv run pytest tests/orchestrator/test_live_llm.py` and `PHEME_LIVE_LLM=1 make eval`.
+Live-LLM run: not yet recorded (no AWS Bedrock credentials configured). Command: `PHEME_LIVE_LLM=1 uv run pytest tests/orchestrator/test_live_llm.py` and `PHEME_LIVE_LLM=1 make eval`.
