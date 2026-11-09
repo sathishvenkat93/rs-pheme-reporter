@@ -64,7 +64,7 @@ Rules while working:
 
 **Stack**
 
-- Backend: Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2 + Alembic, PostgreSQL, Redis + RQ, MinIO (S3 API), DuckDB + Parquet, Polars (+ fastexcel for .xlsx), lxml, rapidfuzz, Anthropic Python SDK. Package manager: uv.
+- Backend: Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2 + Alembic, PostgreSQL, Redis + RQ, an S3-compatible object store (SeaweedFS locally; MinIO's images are no longer published), DuckDB + Parquet, Polars (+ fastexcel for .xlsx), lxml, rapidfuzz, Anthropic Python SDK. Package manager: uv.
 - Frontend: Vite + React + TypeScript, TanStack Query, react-grid-layout, Apache ECharts, Tailwind. Package manager: pnpm.
 - Quality: pytest (+ hypothesis), Vitest, Playwright, ruff, mypy (strict for `backend/app/models` and `backend/app/core`), eslint, tsc.
 - Models come from env vars: `PHEME_MODEL_MAIN` (default `claude-sonnet-5-5`) for orchestration and curation, and `PHEME_MODEL_FAST` (default `claude-haiku-5-5`) for intent parsing and classification.
@@ -93,7 +93,7 @@ Rules while working:
 
 **Commands**
 
-- `make dev` — docker compose (postgres, redis, minio) + API + worker + frontend
+- `make dev` — docker compose (postgres, redis, seaweedfs) + API + worker + frontend
 - `make check` — ruff, mypy, pytest, eslint, tsc, vitest
 - `make e2e` — Playwright
 - `make types` — regenerate frontend types from OpenAPI and JSON Schemas
@@ -116,6 +116,7 @@ The design left these open. The plan uses the defaults below. If one changes, up
 | Approval granularity | Per-item approval cards + one "Approve plan" action | M7, M10 |
 | Orchestration | Own state machine on the Anthropic SDK (not LangGraph or the Agent SDK) | M8 |
 | Job queue | RQ on Redis | M1, M3 |
+| Object store | SeaweedFS (S3 API) in docker compose; code uses only the S3 API, so any S3-compatible store works | M1, M3 |
 | Unstructured text logs | Post-MVP; unknown formats return a readable "unsupported" message | M3 |
 | Build number for test results | Optional `build` field on the upload, else `<properties>` in the XML, else a number in the filename, else upload order | M3, M9 |
 | Live data mode | Append: each upload to a dataset creates a new DatasetVersion that holds all earlier parts plus the new one. Live dashboards follow the latest version; snapshots pin one | M2, M3, M9 |
@@ -152,14 +153,14 @@ Build:
 
 - The folder layout from section 3, with empty packages.
 - **CLAUDE.md** at the repo root containing: a one-paragraph description of Pheme; the lines "The build plan is PHEME_IMPLEMENTATION.md; current status is in docs/progress.md; follow section 1 of the plan. Work one phase at a time, stop at every phase gate, and never start a phase without an explicit go-ahead."; and sections 2 and 3 of this file copied verbatim.
-- Backend: FastAPI app with `GET /health` that checks Postgres, Redis and MinIO; settings from env via pydantic-settings; uv project; ruff, mypy and pytest configured.
+- Backend: FastAPI app with `GET /health` that checks Postgres, Redis and the object store; settings from env via pydantic-settings; uv project; ruff, mypy and pytest configured.
 - A `current_principal` FastAPI dependency that returns the dev user and workspace from config. Every later endpoint takes it; M12 swaps in real auth.
-- `docker-compose.yml` with postgres, redis and minio (bucket auto-created), healthchecks, named volumes, and a complete `.env.example`.
+- `docker-compose.yml` with postgres, redis and seaweedfs (bucket auto-created), healthchecks, named volumes, and a complete `.env.example`.
 - Alembic initialised against Postgres with an empty baseline migration.
 - RQ worker entrypoint (`backend/app/jobs/worker.py`) with one no-op job and a test that runs it.
 - Frontend: Vite + React + TypeScript + Tailwind with a two-pane shell (chat on the left, canvas on the right) and a `/library` route; Vitest and eslint configured.
 - Makefile targets: dev, check, e2e, types, eval and demo-data (the last four can be placeholders for now).
-- A GitHub Actions workflow that runs `make check` on every push, with Postgres, Redis and MinIO as service containers.
+- A GitHub Actions workflow that runs `make check` on every push, with Postgres, Redis and SeaweedFS started from `docker-compose.yml` (GitHub service containers can't pass the store's `server` command).
 - `docs/progress.md` with a checklist grouped by phase, with a "gate passed" line per phase:
   - Phase 1 Foundation: M1 Bootstrap, M2 Models, M3 Ingestion
   - Phase 2 Data intelligence: M4 Profiler, M5 Query, M6 Recommender, M7 Feasibility
@@ -220,7 +221,7 @@ Goal: turn uploaded files into typed, versioned datasets.
 Build in `backend/app/ingestion/`:
 
 - `POST /sessions` (minimal: creates a session in INGEST; the state machine arrives in M8).
-- `POST /uploads` (multipart, streamed to MinIO, sha256 recorded, size limit from config, default 200 MB) creates an Upload and enqueues an RQ ingestion job. Optional form fields: `session_id`, `dataset_id` (append to that dataset as a new version) and `build`. `GET /uploads/{id}` returns the status, any errors and the resulting dataset ids.
+- `POST /uploads` (multipart, streamed to the object store, sha256 recorded, size limit from config, default 200 MB) creates an Upload and enqueues an RQ ingestion job. Optional form fields: `session_id`, `dataset_id` (append to that dataset as a new version) and `build`. `GET /uploads/{id}` returns the status, any errors and the resulting dataset ids.
 - Format detector: uses the extension plus the first 64 KB (XML root element, JSON vs NDJSON, CSV delimiter, JMeter JTL header) to return (format, confidence).
 - Parsers: CSV/TSV, JSON, NDJSON, Excel (.xlsx), JUnit/xUnit XML (nested testsuites; passed, failed, error, skipped) and JMeter JTL (CSV and XML variants).
 - Normalizers to canonical tables:
@@ -229,7 +230,7 @@ Build in `backend/app/ingestion/`:
   - a generic typed table for everything else
   
   Durations become ms. Timestamps become UTC, with the original timezone kept in a column (naive timestamps use the configured default zone). Statuses are standardised (pass/ok/success → passed, and so on). `build` follows the precedence in section 4. Large XML is read with `lxml.iterparse`; CSV with Polars batched/lazy reads.
-- Write each dataset to MinIO as Parquet. Register Dataset + DatasetVersion with a schema_hash (a stable hash of column names and types), the row count and lineage back to the upload.
+- Write each dataset to the object store as Parquet. Register Dataset + DatasetVersion with a schema_hash (a stable hash of column names and types), the row count and lineage back to the upload.
 - `POST /sessions/{id}/context` accepts free text such as "p95 must be < 800 ms, env=staging". Store it raw, and extract simple key=value and threshold facts with regex. LLM extraction arrives in M8.
 - Unknown text logs return format=unknown with a readable message. Learned parsers (Drain3 + LLM) come after the MVP; leave `TODO(post-mvp)`.
 
@@ -292,7 +293,7 @@ Build in `backend/app/query/`:
   - time_grain bucketing: minute, hour, day, week, plus an ordinal "build" grain
   - sort, top_n with an "Other" bucket, and limit. For additive measures (count, count_if, sum) "Other" is the sum of the rest; for all others it is recomputed over the remaining rows.
 - A parser for measure expressions into an AST (no eval). Anything outside the grammar is rejected with a clear message.
-- `execute()`: Parquet parts come from a local read-through cache of MinIO objects, so DuckDB never needs httpfs. Each connection disables external access except for the allowed paths of that dataset version's files, and locks its configuration. A 30 s timeout via `interrupt()` on a timer, and a row cap from config. It returns columns, rows and a query_hash.
+- `execute()`: Parquet parts come from a local read-through cache of object-store files, so DuckDB never needs httpfs. Each connection disables external access except for the allowed paths of that dataset version's files, and locks its configuration. A 30 s timeout via `interrupt()` on a timer, and a row cap from config. It returns columns, rows and a query_hash.
 - A result cache in Redis keyed by (query_hash, dataset_version_id). The workspace check runs before the cache lookup.
 - No hand-written SQL path in the MVP (`TODO(post-mvp)`: sqlglot-validated escape hatch).
 - An LTTB downsampling helper for time series over 2,000 points.

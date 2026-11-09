@@ -1,0 +1,76 @@
+# Local dependencies for Pheme. Started by `make dev` / `make deps-up` and in CI.
+name: pheme
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    environment:
+      POSTGRES_USER: pheme
+      POSTGRES_PASSWORD: pheme
+      POSTGRES_DB: pheme
+    ports: ["${PHEME_PG_PORT:-5432}:5432"]
+    volumes: [pg-data:/var/lib/postgresql/data]
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U pheme -d pheme"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  redis:
+    image: redis:7-alpine
+    ports: ["${PHEME_REDIS_PORT:-6379}:6379"]
+    volumes: [redis-data:/data]
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 2s
+      timeout: 3s
+      retries: 30
+
+  # S3-compatible object store (MinIO images are no longer published).
+  seaweedfs:
+    image: chrislusf/seaweedfs:4.53
+    command: server -dir=/data -ip=seaweedfs -ip.bind=0.0.0.0 -s3 -s3.port=8333 -s3.config=/etc/seaweedfs/s3.json
+    ports: ["${PHEME_S3_PORT:-8333}:8333"]
+    volumes: [s3-data:/data]
+    # Inline config (not a bind mount) so it works wherever the repo lives,
+    # including outside the folders Colima shares with its VM.
+    configs:
+      - source: s3-identities
+        target: /etc/seaweedfs/s3.json
+    healthcheck:
+      test: ["CMD-SHELL", "wget -q -O /dev/null http://localhost:8333/healthz || exit 1"]
+      interval: 2s
+      timeout: 3s
+      retries: 60
+
+  # One-shot: create the bucket, then exit.
+  s3-init:
+    image: chrislusf/seaweedfs:4.53
+    depends_on:
+      seaweedfs: { condition: service_healthy }
+    entrypoint:
+      - sh
+      - -c
+      - >-
+        echo 's3.bucket.list' | weed shell -master=seaweedfs:9333 | grep -qw pheme
+        || echo 's3.bucket.create -name pheme' | weed shell -master=seaweedfs:9333;
+        echo 's3.bucket.list' | weed shell -master=seaweedfs:9333 | grep -qw pheme && echo bucket-ready
+    restart: "no"
+
+configs:
+  s3-identities:
+    content: |
+      {
+        "identities": [
+          {
+            "name": "pheme-dev",
+            "credentials": [{ "accessKey": "pheme", "secretKey": "pheme-secret" }],
+            "actions": ["Admin", "Read", "Write", "List", "Tagging"]
+          }
+        ]
+      }
+
+volumes:
+  pg-data:
+  redis-data:
+  s3-data:

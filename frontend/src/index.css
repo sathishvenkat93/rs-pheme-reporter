@@ -1,0 +1,23 @@
+@import "tailwindcss";
+
+/* Theme tokens: calm and neutral, one accent colour. Status tokens arrive with thresholds in M10. */
+@theme {
+  --color-surface: #ffffff;
+  --color-surface-muted: #f6f7f9;
+  --color-border: #e3e6eb;
+  --color-ink: #1d232b;
+  --color-ink-muted: #5b6573;
+  --color-accent: #3b5bdb;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  background: var(--color-surface-muted);
+  color: var(--color-ink);
+  font-family: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+}
