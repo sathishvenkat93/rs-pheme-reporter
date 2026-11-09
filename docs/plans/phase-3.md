@@ -111,3 +111,8 @@ Tests:
 - **M8** — keep_as_asked works because, for buildable adjusted requests, the unadjusted option is stored too (`<id>_asked`, excluded) and the choice swaps them.
 - **M8** — `VisualOption` gained `thresholds`, `annotations` and `insight`; `sessions` gained `redactions` and `pending_edit` (migration 0003).
 - **M8** — Raw-row `query` results are capped at 50 for the LLM (rule 1); aggregated rows at 500 (R7).
+- **M9** — Edits are proposed by the agent (`patch_dashboard` → a pending edit with before/after preview data), and commit only through `POST /sessions/{id}/edit/apply`. `revert_dashboard` (undo) commits immediately, because the user asked for it directly.
+- **M9** — Chat on a PUBLISHED session enters EDIT; it returns to PUBLISHED when an edit is applied or discarded, or when the turn ends with nothing pending.
+- **M9** — Refresh is `POST /dashboards/{id}/refresh {upload_id}` after an append upload. An incompatible upload (refused at ingest) gets a proposed field mapping (rapidfuzz) instead of an error. The session passes through REFRESH while it runs.
+- **M9** — The Phase 3 exit test lives in `tests/orchestrator/test_phase3_flow.py`, next to the fixtures it shares, instead of `tests/e2e/`.
+- **M9** — Percent thresholds from context ("at least 95 %") become 0–1 KPI targets.

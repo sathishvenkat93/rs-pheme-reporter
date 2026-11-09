@@ -90,6 +90,8 @@ class Agent:
         self.session = session
         self.redactor = Redactor(dict(session.redactions or {}))
         self._turn_requests: dict[str, ChartRequest] = {}
+        self.selected: list[str] = []
+        self.last_user_text: str | None = None
 
     # ------------------------------------------------------------------ construction
     @classmethod
@@ -213,7 +215,10 @@ class Agent:
         out: dict[str, float] = {}
         for entry in self.session.context or []:
             for t in entry.get("thresholds", []):
-                out[str(t["metric"])] = float(t["value"])
+                value = float(t["value"])
+                out[str(t["metric"])] = (
+                    value / 100 if t.get("unit") == "%" else value
+                )  # percent measures are 0-1
         return out
 
     def _sample_rows(self) -> list[dict[str, object]]:
@@ -236,6 +241,10 @@ class Agent:
             return reply
         if self.state == State.PROPOSE:
             self.transition(State.REFINE)
+        if self.state == State.PUBLISHED:  # chat on a published dashboard is an edit
+            self.transition(State.EDIT)
+        self.selected = list(selected_widget_ids or [])
+        self.last_user_text = text
 
         history = self._llm_history()
         turn = {
@@ -251,6 +260,8 @@ class Agent:
         for m in result.new_messages:
             self._persist("llm_assistant" if m["role"] == "assistant" else "llm_tool", m)
         reply = self.redactor.restore(result.text)
+        if self.state == State.EDIT and not self.session.pending_edit:
+            self.transition(State.PUBLISHED)  # nothing to apply: back to the published dashboard
         self._reply(reply, usage=result.usage.model_dump())
         return reply
 
@@ -666,18 +677,8 @@ def _request_approval(a: Agent, args: ApprovalIn) -> Any:
     return f"{len(open_ids)} decision card(s) shown."
 
 
-@tool("build_dashboard", "Compile the approved plan into a saved dashboard.", NoInput)
-def _build(a: Agent, args: NoInput) -> Any:
-    raise AgentError("Building dashboards arrives in M9.")  # TODO(M9)
-
-
-@tool("list_dashboards", "Search saved dashboards in the library.", RecommendIn)
-def _list(a: Agent, args: RecommendIn) -> Any:
-    rows = a.db.scalars(
-        select(DashboardRow).where(DashboardRow.workspace_id == a.principal.workspace_id)
-    ).all()
-    return [{"id": str(d.id), "title": d.title} for d in rows]  # TODO(M9): search, filters
-
-
 def dump(obj: Any) -> str:
     return json.dumps(obj, default=str)
+
+
+from app.orchestrator import dashboards as _dashboard_tools  # noqa: E402,F401 - registers M9 tools

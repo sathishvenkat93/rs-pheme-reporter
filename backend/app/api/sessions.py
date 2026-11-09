@@ -12,9 +12,11 @@ from pydantic import BaseModel, Field
 
 from app.api.deps import DB, Caller, Model
 from app.core.security import Redactor
+from app.dashboards.store import EditError, StaleVersion
 from app.ingestion.context import ContextFacts, extract
 from app.orchestrator import events, plans
 from app.orchestrator.agent import Agent, AgentError
+from app.orchestrator.dashboards import apply_edit, discard_edit
 from app.orchestrator.tasks import extract_context
 
 router = APIRouter(prefix="/sessions", tags=["sessions"])
@@ -126,6 +128,27 @@ def approve(session_id: UUID, db: DB, caller: Caller, llm: Model) -> ApproveOut:
     except AgentError as exc:
         raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from None
     return ApproveOut(state=a.state.value, plan_version=plan.version)
+
+
+class EditOut(BaseModel):
+    dashboard_id: UUID
+    version: int
+
+
+@router.post("/{session_id}/edit/apply", response_model=EditOut)
+def apply_pending_edit(session_id: UUID, db: DB, caller: Caller, llm: Model) -> EditOut:
+    """Commit the agent's previewed edit (the user's Apply click)."""
+    a = _agent(db, caller, llm, session_id)
+    try:
+        v = apply_edit(a)
+    except (AgentError, StaleVersion, EditError) as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from None
+    return EditOut(dashboard_id=v.dashboard_id, version=v.version)
+
+
+@router.post("/{session_id}/edit/discard", status_code=status.HTTP_204_NO_CONTENT)
+def discard_pending_edit(session_id: UUID, db: DB, caller: Caller, llm: Model) -> None:
+    discard_edit(_agent(db, caller, llm, session_id))
 
 
 @router.post(

@@ -20,7 +20,7 @@ Status of the build plan in [PHEME_IMPLEMENTATION.md](../PHEME_IMPLEMENTATION.md
 ## Phase 3 — Agent and dashboards
 
 - [x] M8 Orchestrator (live-LLM run pending: no API key configured)
-- [ ] M9 Dashboards & edits
+- [x] M9 Dashboards & edits
 - [ ] Gate passed
 
 ## Phase 4 — User interface

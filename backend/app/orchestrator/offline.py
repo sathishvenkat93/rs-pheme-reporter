@@ -133,8 +133,64 @@ def _tool_results(request: Request) -> list[tuple[str, Any]]:
     return out
 
 
+_RENAME = re.compile(
+    r"\brename\s+(?:the\s+)?(?P<what>.+?)\s+to\s+[\"']?(?P<to>[^\"']+?)[\"']?\s*$", re.I
+)
+_RETYPE = re.compile(
+    rf"\b(?:make|change|turn)\s+(?:the\s+)?(?P<what>.+?)\s+(?:in)?to\s+an?\s+(?P<chart>{CHARTS})(?:\s+chart)?\b",
+    re.I,
+)
+_RETYPE2 = re.compile(
+    rf"\bmake\s+(?:the\s+)?(?P<what>.+?)\s+an?\s+(?P<chart>{CHARTS})(?:\s+chart)?\b", re.I
+)
+_CHART_NAME = {"column": "bar", "pie": "donut", "box plot": "box", "stacked bar": "stacked_bar"}
+
+
+def edit(request: Request, text: str, results: list[tuple[str, Any]]) -> LLMResponse:
+    """EDIT state: undo, rename and change-type, via resolve_widget then patch_dashboard."""
+    if not results:
+        if re.search(r"\b(undo|go back|revert)\b", text, re.I):
+            return tool_response(("revert_dashboard", {}))
+        m = _RENAME.search(text) or _RETYPE.search(text) or _RETYPE2.search(text)
+        if m:
+            return tool_response(("resolve_widget", {"reference": m["what"]}))
+        return text_response(
+            "What would you like to change? You can rename a widget or change its chart type."
+        )
+    name, payload = results[0]
+    if name == "resolve_widget" and isinstance(payload, dict):
+        if payload.get("ambiguous"):
+            options = ", ".join(c["title"] for c in payload["candidates"])
+            return text_response(f"Which one do you mean: {options}?")
+        if not payload.get("widgets"):
+            return text_response(
+                "I couldn't find that widget. Select it on the dashboard and try again."
+            )
+        wid = payload["widgets"][0]["id"]
+        if m := _RENAME.search(text):
+            ops = [{"op": "replace", "path": f"/widgets/{wid}/title", "value": m["to"].strip()}]
+            return tool_response(
+                ("patch_dashboard", {"ops": ops, "note": f"Renamed to {m['to'].strip()}"})
+            )
+        if m := (_RETYPE.search(text) or _RETYPE2.search(text)):
+            chart = _CHART_NAME.get(m["chart"].lower(), m["chart"].lower())
+            ops = [{"op": "replace", "path": f"/widgets/{wid}/type", "value": chart}]
+            return tool_response(("patch_dashboard", {"ops": ops, "note": f"Changed to {chart}"}))
+    if name == "patch_dashboard":
+        return text_response("Here's a preview of the change. Click Apply to save it.")
+    if name == "revert_dashboard" and isinstance(payload, dict):
+        return text_response(
+            f"Restored version {payload['restored']} as version {payload['version']}."
+        )
+    return text_response(payload if isinstance(payload, str) else "Done.")
+
+
 def converse(request: Request) -> LLMResponse:
     results = _tool_results(request)
+    edit_tools = {"resolve_widget", "patch_dashboard", "revert_dashboard", "get_dashboard"}
+    if request.state == "EDIT" or (results and results[0][0] in edit_tools):
+        m = _USER.search(request.last_user_text)
+        return edit(request, m["text"] if m else request.last_user_text, results)
     if not results:
         m = _USER.search(request.last_user_text)
         text = m["text"] if m else request.last_user_text
@@ -144,6 +200,8 @@ def converse(request: Request) -> LLMResponse:
             return tool_response(("build_dashboard", {}))
         return text_response("Noted.")
     name, payload = results[0]
+    if name == "build_dashboard" and isinstance(payload, dict):
+        return text_response(f"Your dashboard is ready: {payload['url']}")
     if name == "parse_chart_request" and isinstance(payload, dict):
         calls: list[tuple[str, dict[str, Any]]] = [
             ("check_feasibility", {"request": r}) for r in payload["requests"]
