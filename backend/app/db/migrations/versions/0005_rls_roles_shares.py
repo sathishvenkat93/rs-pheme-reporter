@@ -7,7 +7,6 @@ Create Date: 2026-11-09 15:42:49.922383
 """
 from typing import Sequence, Union
 
-import os
 
 from alembic import op
 import sqlalchemy as sa
@@ -29,7 +28,9 @@ WORKSPACE_TABLES = (
 
 
 def _enable_rls() -> None:
-    password = os.environ.get("PHEME_APP_DB_PASSWORD", "pheme_app").replace("'", "''")
+    from app.core.config import get_settings  # reads .env too, like the app's own URL
+
+    password = get_settings().app_db_password.replace("'", "''")
     op.execute(f"""
         DO $$ BEGIN
           IF NOT EXISTS (SELECT FROM pg_roles WHERE rolname = 'pheme_app') THEN
