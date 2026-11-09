@@ -58,6 +58,7 @@ def _ingest(db: Session, upload: Upload) -> UUID:
     settings = get_settings()
     detection = detect(upload.filename, storage.read_head(upload.object_key, HEAD_BYTES))
     upload.detected_format = detection.format.value
+    db.commit()  # keep the detected format even if parsing fails below
 
     dataset: DatasetRow | None = None
     prev = None

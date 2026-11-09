@@ -39,6 +39,7 @@ def test_bad_files_fail_with_a_readable_message(client: TestClient, name: str) -
     status = upload(client, FIXTURES / name)
     assert status["status"] == "failed"
     assert status["dataset_ids"] == []
+    assert status["detected_format"] == MANIFEST[name]["format"]
     assert_readable(status["error"])
 
 
