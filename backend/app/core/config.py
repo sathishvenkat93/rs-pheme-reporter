@@ -42,6 +42,10 @@ class Settings(BaseSettings):
 
     queue_name: str = "pheme"
 
+    query_timeout_s: float = Field(default=30.0, gt=0)
+    query_row_cap: int = Field(default=10_000, gt=0)
+    query_cache_ttl_s: int = Field(default=86_400, gt=0)
+
     anthropic_api_key: str = ""
     model_main: str = "claude-sonnet-5-5"
     model_fast: str = "claude-haiku-5-5"

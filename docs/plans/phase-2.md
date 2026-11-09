@@ -78,3 +78,7 @@ Tests: table-driven over every R5 row; the can_build flip; every reason < 25 wor
 - **M4** — `app/query/engine.py` (sandboxed DuckDB + local part cache) was built in M4 because the profiler needs it; M5 reuses it.
 - **M4** — Candidate keys come only from identifier, category and time columns (unique float measures such as revenue aren't keys).
 - **M4** — Added `numpy` (Mann-Kendall, segmentation) and `pyyaml` (domain packs) as dependencies.
+- **M5** — Connections pin `TimeZone='UTC'`; otherwise DuckDB truncates and returns timestamps in the host's zone.
+- **M5** — The executor refuses anything but exactly one SELECT (`extract_statements`). A raw DuckDB connection runs stacked statements (`SELECT 1; DROP VIEW data`), so this guards against compiler bugs; the compiler itself only emits one SELECT.
+- **M5** — NULL values of a top-N dimension fold into "Other".
+- **M5** — Added `pytz` (DuckDB needs it to return timezone-aware timestamps).

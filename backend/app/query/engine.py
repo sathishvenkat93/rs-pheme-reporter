@@ -55,6 +55,7 @@ def connect(
         raise ValueError("a dataset version needs at least one part")
     con = duckdb.connect(":memory:")
     con.execute(f"SET threads={int(threads)}")
+    con.execute("SET TimeZone='UTC'")  # date_trunc and results in UTC, whatever the host zone
     con.execute("SET allowed_paths=?", [[str(p) for p in resolved]])
     con.execute("SET enable_external_access=false")
     con.execute("SET lock_configuration=true")
