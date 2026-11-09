@@ -27,7 +27,7 @@ Status of the build plan in [PHEME_IMPLEMENTATION.md](../PHEME_IMPLEMENTATION.md
 
 - [x] M10 UI chat & proposals
 - [x] M11 UI dashboard & library
-- [ ] Gate passed
+- [x] Gate passed (approved 2026-11-09; CI still unverified: push blocked)
 
 ## Phase 5 — Hardening and evaluation
 
