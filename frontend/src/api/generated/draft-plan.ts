@@ -34,6 +34,13 @@ export type Format = ("number" | "percent" | "duration_ms" | "bytes" | "rate") |
 export type Id3 = string;
 export type Label1 = string | null;
 export type Measures = Measure[];
+export type Label2 = string | null;
+export type Type = "rule" | "band" | "text";
+export type X = string | number | boolean | null;
+export type XEnd = string | number | boolean | null;
+export type Y = number | null;
+export type YEnd = number | null;
+export type Annotations = Annotation[];
 /**
  * This interface was referenced by `DraftPlan`'s JSON-Schema
  * via the `definition` "WidgetType".
@@ -55,10 +62,11 @@ export type Color = string | null;
 export type Series = string | null;
 export type Size = string | null;
 export type Value = string | null;
-export type X = string | null;
-export type Y = string | null;
+export type X1 = string | null;
+export type Y1 = string | null;
 export type Fields = string[];
 export type Id4 = string;
+export type Insight = string | null;
 export type Measures1 = Measure[];
 export type Bins = number | null;
 export type Horizontal = boolean | null;
@@ -107,7 +115,7 @@ export type Clutter = number;
 export type DataFit = number;
 export type DomainPrior = number;
 export type Facts = string[];
-export type Insight = number;
+export type Insight1 = number;
 export type Intent = number;
 export type Perception = number;
 export type Redundancy = number;
@@ -117,6 +125,10 @@ export type Total = number;
  * via the `definition` "OptionStatus".
  */
 export type OptionStatus = "recommended" | "optional" | "requested" | "needs_approval" | "excluded";
+export type Above = number | null;
+export type Below = number | null;
+export type Color1 = "good" | "warning" | "critical";
+export type Thresholds = Threshold[];
 export type Title = string;
 export type Options1 = VisualOption[];
 export type Aggregation = string | null;
@@ -191,10 +203,12 @@ export interface Measure {
  * via the `definition` "VisualOption".
  */
 export interface VisualOption {
+  annotations?: Annotations;
   chart_type: WidgetType;
   encoding?: Encoding;
   fields?: Fields;
   id: Id4;
+  insight?: Insight;
   measures?: Measures1;
   options?: WidgetOptions | null;
   query: SemanticQuery;
@@ -202,7 +216,20 @@ export interface VisualOption {
   request_id?: RequestId;
   score?: ScoreBreakdown | null;
   status: OptionStatus;
+  thresholds?: Thresholds;
   title: Title;
+}
+/**
+ * This interface was referenced by `DraftPlan`'s JSON-Schema
+ * via the `definition` "Annotation".
+ */
+export interface Annotation {
+  label?: Label2;
+  type: Type;
+  x?: X;
+  x_end?: XEnd;
+  y?: Y;
+  y_end?: YEnd;
 }
 /**
  * This interface was referenced by `DraftPlan`'s JSON-Schema
@@ -213,8 +240,8 @@ export interface Encoding {
   series?: Series;
   size?: Size;
   value?: Value;
-  x?: X;
-  y?: Y;
+  x?: X1;
+  y?: Y1;
 }
 /**
  * This interface was referenced by `DraftPlan`'s JSON-Schema
@@ -311,11 +338,20 @@ export interface ScoreBreakdown {
   data_fit: DataFit;
   domain_prior: DomainPrior;
   facts?: Facts;
-  insight: Insight;
+  insight: Insight1;
   intent: Intent;
   perception: Perception;
   redundancy: Redundancy;
   total: Total;
+}
+/**
+ * This interface was referenced by `DraftPlan`'s JSON-Schema
+ * via the `definition` "Threshold".
+ */
+export interface Threshold {
+  above?: Above;
+  below?: Below;
+  color: Color1;
 }
 /**
  * An unresolved request. ``chart_type`` is free text so unsupported types can be expressed.

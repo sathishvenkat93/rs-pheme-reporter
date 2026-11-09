@@ -59,6 +59,7 @@ class Settings(BaseSettings):
         }
     )
 
+    llm: str = "fake"  # "fake" (default, offline) or "anthropic"
     anthropic_api_key: str = ""
     model_main: str = "claude-sonnet-5-5"
     model_fast: str = "claude-haiku-5-5"

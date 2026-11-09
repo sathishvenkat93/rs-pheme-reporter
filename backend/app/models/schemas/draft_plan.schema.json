@@ -1,5 +1,102 @@
 {
   "$defs": {
+    "Annotation": {
+      "additionalProperties": false,
+      "properties": {
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        },
+        "type": {
+          "enum": [
+            "rule",
+            "band",
+            "text"
+          ],
+          "title": "Type",
+          "type": "string"
+        },
+        "x": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "X"
+        },
+        "x_end": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "X End"
+        },
+        "y": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Y"
+        },
+        "y_end": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Y End"
+        }
+      },
+      "required": [
+        "type"
+      ],
+      "title": "Annotation",
+      "type": "object"
+    },
     "ChartRequest": {
       "additionalProperties": false,
       "description": "An unresolved request. ``chart_type`` is free text so unsupported types can be expressed.",
@@ -878,6 +975,49 @@
       "title": "SortKey",
       "type": "object"
     },
+    "Threshold": {
+      "additionalProperties": false,
+      "properties": {
+        "above": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Above"
+        },
+        "below": {
+          "anyOf": [
+            {
+              "type": "number"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Below"
+        },
+        "color": {
+          "enum": [
+            "good",
+            "warning",
+            "critical"
+          ],
+          "title": "Color",
+          "type": "string"
+        }
+      },
+      "required": [
+        "color"
+      ],
+      "title": "Threshold",
+      "type": "object"
+    },
     "TimeGrain": {
       "enum": [
         "minute",
@@ -892,6 +1032,13 @@
     "VisualOption": {
       "additionalProperties": false,
       "properties": {
+        "annotations": {
+          "items": {
+            "$ref": "#/$defs/Annotation"
+          },
+          "title": "Annotations",
+          "type": "array"
+        },
         "chart_type": {
           "$ref": "#/$defs/WidgetType"
         },
@@ -911,6 +1058,18 @@
           "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$",
           "title": "Id",
           "type": "string"
+        },
+        "insight": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Insight"
         },
         "measures": {
           "items": {
@@ -963,6 +1122,13 @@
         },
         "status": {
           "$ref": "#/$defs/OptionStatus"
+        },
+        "thresholds": {
+          "items": {
+            "$ref": "#/$defs/Threshold"
+          },
+          "title": "Thresholds",
+          "type": "array"
         },
         "title": {
           "maxLength": 200,

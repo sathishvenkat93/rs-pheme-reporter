@@ -77,6 +77,9 @@ class SessionRow(Base):
         ForeignKey("dashboards.id", use_alter=True, ondelete="SET NULL")
     )
     context: Mapped[list[Json]] = mapped_column(JSONB, default=list, server_default="[]")
+    # Reversible PII placeholders for this session (placeholder -> original). Never sent to the LLM.
+    redactions: Mapped[dict[str, str]] = mapped_column(JSONB, default=dict, server_default="{}")
+    pending_edit: Mapped[Json | None] = mapped_column(JSONB)
     created_at: Mapped[datetime] = _created()
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
 

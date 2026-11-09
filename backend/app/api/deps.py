@@ -10,6 +10,7 @@ from sqlalchemy.orm import Session
 from app.core.db import get_db
 from app.core.principal import Principal, current_principal
 from app.db.tables import User, Workspace
+from app.orchestrator.llm import LLM, make_llm
 
 DB = Annotated[Session, Depends(get_db)]
 
@@ -35,3 +36,17 @@ def principal(db: DB, who: Annotated[Principal, Depends(current_principal)]) -> 
 
 
 Caller = Annotated[Principal, Depends(principal)]
+
+
+_LLM: LLM | None = None
+
+
+def get_llm() -> LLM:
+    """The app's LLM (offline FakeLLM unless PHEME_LLM=anthropic). Tests override this dependency."""
+    global _LLM
+    if _LLM is None:
+        _LLM = make_llm()
+    return _LLM
+
+
+Model = Annotated[LLM, Depends(get_llm)]
