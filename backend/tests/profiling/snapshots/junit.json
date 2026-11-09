@@ -1,0 +1,300 @@
+{
+  "candidate_keys": [],
+  "change_points": [],
+  "columns": [
+    {
+      "distinct": 5,
+      "name": "run_id",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "identifier",
+      "time": null,
+      "top_k": [
+        {
+          "count": 36,
+          "value": "run-1"
+        },
+        {
+          "count": 36,
+          "value": "run-2"
+        },
+        {
+          "count": 35,
+          "value": "run-3"
+        },
+        {
+          "count": 35,
+          "value": "run-4"
+        },
+        {
+          "count": 35,
+          "value": "run-5"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 5,
+      "name": "build",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 36,
+          "value": "101"
+        },
+        {
+          "count": 36,
+          "value": "102"
+        },
+        {
+          "count": 35,
+          "value": "103"
+        },
+        {
+          "count": 35,
+          "value": "104"
+        },
+        {
+          "count": 35,
+          "value": "105"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 3,
+      "name": "suite",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 63,
+          "value": "api"
+        },
+        {
+          "count": 59,
+          "value": "ui"
+        },
+        {
+          "count": 55,
+          "value": "db"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 34,
+      "name": "case",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 9,
+          "value": "test_ui_upload"
+        },
+        {
+          "count": 8,
+          "value": "test_api_rate_limit"
+        },
+        {
+          "count": 5,
+          "value": "test_api_auth_refresh"
+        },
+        {
+          "count": 5,
+          "value": "test_api_create_user"
+        },
+        {
+          "count": 5,
+          "value": "test_api_delete_user"
+        },
+        {
+          "count": 5,
+          "value": "test_api_export"
+        },
+        {
+          "count": 5,
+          "value": "test_api_import"
+        },
+        {
+          "count": 5,
+          "value": "test_api_list_users"
+        },
+        {
+          "count": 5,
+          "value": "test_api_login"
+        },
+        {
+          "count": 5,
+          "value": "test_api_logout"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 4,
+      "name": "status",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "status",
+      "time": null,
+      "top_k": [
+        {
+          "count": 131,
+          "value": "passed"
+        },
+        {
+          "count": 31,
+          "value": "failed"
+        },
+        {
+          "count": 8,
+          "value": "error"
+        },
+        {
+          "count": 7,
+          "value": "skipped"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 168,
+      "name": "duration_ms",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 3855.0,
+        "mean": 750.893,
+        "min": 70.0,
+        "p50": 541.0,
+        "p95": 1912.2,
+        "skew": 1.79998
+      },
+      "role": "duration",
+      "time": null,
+      "top_k": [],
+      "type": "float"
+    },
+    {
+      "distinct": 4,
+      "name": "error_type",
+      "null_pct": 77.9661,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 15,
+          "value": "AssertionError"
+        },
+        {
+          "count": 9,
+          "value": "TimeoutError"
+        },
+        {
+          "count": 8,
+          "value": "NullPointerException"
+        },
+        {
+          "count": 7,
+          "value": "ConnectionError"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 5,
+      "name": "error_message",
+      "null_pct": 74.0113,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 15,
+          "value": "expected 200 but got 500"
+        },
+        {
+          "count": 9,
+          "value": "operation timed out after 30s"
+        },
+        {
+          "count": 8,
+          "value": "user was null"
+        },
+        {
+          "count": 7,
+          "value": "connection refused: db:5432"
+        },
+        {
+          "count": 7,
+          "value": "not on this platform"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 15,
+      "name": "timestamp",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "time",
+      "time": {
+        "median_gap_seconds": 600.0,
+        "monotonic": true,
+        "span_seconds": 346800.0
+      },
+      "top_k": [],
+      "type": "timestamp"
+    },
+    {
+      "distinct": 1,
+      "name": "orig_tz",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 177,
+          "value": "UTC"
+        }
+      ],
+      "type": "string"
+    }
+  ],
+  "correlations": [],
+  "dataset_version_id": "00000000-0000-0000-0000-000000000001",
+  "domain": "test_execution",
+  "domain_confidence": 0.95,
+  "grain": "one row per test case execution",
+  "hierarchies": [
+    [
+      "suite",
+      "case"
+    ],
+    [
+      "error_type",
+      "error_message"
+    ]
+  ],
+  "kind": "test_results",
+  "outliers": {
+    "duration_ms": 5
+  },
+  "row_count": 177,
+  "trends": [
+    {
+      "direction": -1,
+      "measure": "duration_ms",
+      "strength": 0.212
+    }
+  ]
+}

@@ -1,0 +1,44 @@
+domain: performance
+label: Performance testing
+measures:
+  - {id: throughput, label: Throughput, expr: "rate(count(), 'second')", format: rate, kpi: true, good: up, requires: [timestamp]}
+  - {id: p50, label: p50 latency, expr: "percentile(latency_ms, 50)", format: duration_ms, kpi: true, good: down, requires: [latency_ms]}
+  - {id: p90, label: p90 latency, expr: "percentile(latency_ms, 90)", format: duration_ms, kpi: true, good: down, requires: [latency_ms]}
+  - {id: p95, label: p95 latency, expr: "percentile(latency_ms, 95)", format: duration_ms, kpi: true, good: down, requires: [latency_ms]}
+  - {id: p99, label: p99 latency, expr: "percentile(latency_ms, 99)", format: duration_ms, kpi: true, good: down, requires: [latency_ms]}
+  - {id: error_rate, label: Error rate, expr: "ratio(count_if(success == false), count())", format: percent, kpi: true, good: down, requires: [success]}
+  - {id: apdex, label: "Apdex (T = 500 ms)", expr: "apdex(latency_ms, 500)", format: number, kpi: true, good: up, requires: [latency_ms]}
+  - {id: error_count, label: Errors, expr: "count_if(success == false)", format: number, requires: [success]}
+  - {id: avg_latency, label: Average latency, expr: "avg(latency_ms)", format: duration_ms, requires: [latency_ms]}
+  - {id: samples, label: Samples, expr: "count()", format: number}
+signature_visuals:
+  - {id: percentile_lines, title: Latency percentiles over time, chart_type: line, dimensions: [timestamp], measures: [p50, p90, p95], time_grain: auto, requires: [timestamp, latency_ms]}
+  - {id: p95_over_time, title: p95 latency over time, chart_type: line, dimensions: [timestamp], measures: [p95], time_grain: auto, requires: [timestamp, latency_ms]}
+  - {id: latency_histogram, title: Response-time distribution, chart_type: histogram, distribution_of: latency_ms, requires: [latency_ms]}
+  - {id: throughput_over_time, title: Throughput over time, chart_type: line, dimensions: [timestamp], measures: [throughput], time_grain: auto, requires: [timestamp]}
+  - {id: throughput_vs_users, title: Throughput vs concurrent users, chart_type: line, dimensions: [threads], measures: [throughput], requires: [threads, timestamp]}
+  - id: errors_by_label
+    title: Errors by endpoint
+    chart_type: bar
+    dimensions: [label]
+    measures: [error_count]
+    sort: [{field: error_count, dir: desc}]
+    requires: [label, success]
+  - {id: sla_table, title: Endpoint summary, chart_type: table, dimensions: [label], measures: [samples, p95, error_rate], sort: [{field: p95, dir: desc}], requires: [label, latency_ms]}
+synonyms:
+  latency_ms: [latency, response time, response times, elapsed, elapsed time, duration, speed]
+  label: [endpoint, endpoints, label, labels, transaction, transactions, request, requests, page, url]
+  throughput: [throughput, requests per second, rps, req/s, traffic, load]
+  error_rate: [error rate, failure rate, error percentage]
+  error_count: [errors, failures, failed requests]
+  threads: [users, threads, concurrent users, virtual users, vus]
+  response_code: [status code, http status, response code]
+  bytes: [size, bytes, payload, response size]
+  timestamp: [time, date, when, over time]
+concepts:
+  performance: [p95, throughput, error_rate]
+  speed: [p95, avg_latency]
+  reliability: [error_rate, error_count]
+derived:
+  cpu: {label: CPU usage, needs: [cpu_pct], kind: field}
+  memory: {label: memory usage, needs: [memory_mb], kind: field}

@@ -1,0 +1,28 @@
+.env
+.env.*
+!.env.example
+.DS_Store
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+.mypy_cache/
+.ruff_cache/
+.pytest_cache/
+.hypothesis/
+.coverage
+htmlcov/
+
+# Node
+node_modules/
+dist/
+coverage/
+
+# Local data
+/tmp/
+backend/eval/reports/*.tmp
+
+# Playwright
+frontend/test-results/
+frontend/playwright-report/

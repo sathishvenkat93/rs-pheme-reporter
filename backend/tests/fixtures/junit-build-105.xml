@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="regression">
+  <testsuite name="all">
+    <testsuite name="api" tests="13" timestamp="2026-10-05T09:00:00">
+      <testcase name="test_api_login" classname="tests.api" time="0.693"><failure type="AssertionError" message="expected 200 but got 500">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_api_logout" classname="tests.api" time="0.142"/>
+      <testcase name="test_api_create_user" classname="tests.api" time="1.797"/>
+      <testcase name="test_api_delete_user" classname="tests.api" time="0.435"/>
+      <testcase name="test_api_list_users" classname="tests.api" time="0.117"/>
+      <testcase name="test_api_rate_limit" classname="tests.api" time="0.437"><failure type="ConnectionError" message="connection refused: db:5432">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_api_rate_limit" classname="tests.api" time="0.349"/>
+      <testcase name="test_api_pagination" classname="tests.api" time="0.81"/>
+      <testcase name="test_api_search" classname="tests.api" time="0.6"/>
+      <testcase name="test_api_export" classname="tests.api" time="0.464"/>
+      <testcase name="test_api_import" classname="tests.api" time="1.823"/>
+      <testcase name="test_api_auth_refresh" classname="tests.api" time="0.624"/>
+      <testcase name="test_api_permissions" classname="tests.api" time="0.454"/>
+    </testsuite>
+    <testsuite name="ui" tests="11" timestamp="2026-10-05T09:10:00">
+      <testcase name="test_ui_home" classname="tests.ui" time="0.541"/>
+      <testcase name="test_ui_dashboard" classname="tests.ui" time="0.237"/>
+      <testcase name="test_ui_settings" classname="tests.ui" time="0.213"/>
+      <testcase name="test_ui_profile" classname="tests.ui" time="0.678"/>
+      <testcase name="test_ui_upload" classname="tests.ui" time="0.418"/>
+      <testcase name="test_ui_download" classname="tests.ui" time="0.161"/>
+      <testcase name="test_ui_dark_mode" classname="tests.ui" time="0.838"/>
+      <testcase name="test_ui_keyboard_nav" classname="tests.ui" time="0.287"/>
+      <testcase name="test_ui_search_box" classname="tests.ui" time="1.16"/>
+      <testcase name="test_ui_notifications" classname="tests.ui" time="0.239"/>
+      <testcase name="test_ui_help" classname="tests.ui" time="1.304"><error type="AssertionError" message="expected 200 but got 500">Traceback (most recent call last): ...</error></testcase>
+    </testsuite>
+    <testsuite name="db" tests="11" timestamp="2026-10-05T09:20:00">
+      <testcase name="test_db_migrate" classname="tests.db" time="0.735"/>
+      <testcase name="test_db_rollback" classname="tests.db" time="1.933"/>
+      <testcase name="test_db_backup" classname="tests.db" time="0.524"/>
+      <testcase name="test_db_restore" classname="tests.db" time="0.687"/>
+      <testcase name="test_db_index" classname="tests.db" time="1.218"/>
+      <testcase name="test_db_vacuum" classname="tests.db" time="0.642"/>
+      <testcase name="test_db_replication" classname="tests.db" time="0.3"/>
+      <testcase name="test_db_failover" classname="tests.db" time="0.365"/>
+      <testcase name="test_db_pool" classname="tests.db" time="0.727"><error type="TimeoutError" message="operation timed out after 30s">Traceback (most recent call last): ...</error></testcase>
+      <testcase name="test_db_deadlock" classname="tests.db" time="0.073"/>
+      <testcase name="test_db_encoding" classname="tests.db" time="0.369"><failure type="TimeoutError" message="operation timed out after 30s">Traceback (most recent call last): ...</failure></testcase>
+    </testsuite>
+  </testsuite>
+</testsuites>

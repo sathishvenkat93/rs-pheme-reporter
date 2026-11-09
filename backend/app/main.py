@@ -1,0 +1,39 @@
+"""FastAPI application factory."""
+
+from __future__ import annotations
+
+from fastapi import FastAPI
+from fastapi.middleware.cors import CORSMiddleware
+
+from app.api import auth, dashboards, datasets, health, plans, query, sessions, uploads
+from app.core.auth import check_startup
+from app.core.logging import configure_logging
+from app.core.telemetry import instrument
+
+
+def create_app() -> FastAPI:
+    configure_logging()
+    check_startup()
+    app = FastAPI(title="Pheme API", version="0.1.0")
+    app.add_middleware(
+        CORSMiddleware,
+        allow_origins=["http://localhost:5173"],
+        allow_methods=["*"],
+        allow_headers=["*"],
+    )
+    for router in (
+        health.router,
+        auth.router,
+        sessions.router,
+        uploads.router,
+        datasets.router,
+        query.router,
+        plans.router,
+        dashboards.router,
+    ):
+        app.include_router(router)
+    instrument(app)
+    return app
+
+
+app = create_app()

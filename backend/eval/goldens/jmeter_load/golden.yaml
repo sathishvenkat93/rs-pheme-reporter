@@ -1,0 +1,39 @@
+name: jmeter_load
+description: JMeter load test (8 endpoints, ramping threads). Seed golden built from the fixtures.
+files: [jmeter-load.jtl]
+domain: performance
+experts:
+  - name: author-a
+    source: "Self-made by the build agent from load-testing practice; NOT an independent expert."
+    top8:
+      - {chart: kpi, measures: [throughput]}
+      - {chart: kpi, measures: [p95]}
+      - {chart: kpi, measures: [error_rate]}
+      - {chart: line, dims: [timestamp], measures: [p95]}
+      - {chart: line, dims: [timestamp], measures: [throughput]}
+      - {chart: histogram, dims: [latency_ms]}
+      - {chart: bar, dims: [label], measures: [error_count]}
+      - {chart: table, dims: [label]}
+  - name: author-b
+    source: "Second self-made list (SRE perspective); NOT independent of the system."
+    top8:
+      - {chart: kpi, measures: [p95]}
+      - {chart: kpi, measures: [p99]}
+      - {chart: kpi, measures: [error_rate]}
+      - {chart: line, dims: [timestamp], measures: [p50, p90, p95]}
+      - {chart: line, dims: [threads], measures: [throughput]}
+      - {chart: histogram, dims: [latency_ms]}
+      - {chart: bar, dims: [label], measures: [error_count]}
+      - {chart: box, dims: [label]}
+requests:
+  - {id: cpu, text: "CPU usage over time", chart_type: line, phrases: [[cpu usage, y], [time, x]], expected: not_feasible}
+  - {id: perf, text: "Show performance", chart_type: null, phrases: [[performance, null]], expected: needs_clarification}
+  - {id: memory, text: "Memory per endpoint", chart_type: bar, phrases: [[memory, y], [endpoint, x]], expected: not_feasible}
+  - {id: globe, text: "Globe of requests", chart_type: 3d globe, phrases: [[requests, measure]], expected: not_feasible}
+  - {id: p95ep, text: "p95 latency by endpoint", chart_type: bar, phrases: [[endpoint, x], [p95, measure]], expected: feasible}
+  - {id: hist, text: "Response time distribution", chart_type: histogram, phrases: [[response time, x]], expected: feasible}
+  - {id: tput, text: "Throughput over time", chart_type: line, phrases: [[time, x], [throughput, measure]], expected: feasible}
+  - {id: hourly, text: "Hourly p95", chart_type: line, phrases: [[time, x], [p95, measure]], time_grain: hourly, expected: feasible}
+edits:
+  - {name: rename latency trend, prompt: "Call the p95 trend Latency", ops: [{op: replace, path: "/widgets/$line/title", value: "Latency"}], expect_changed: ["/widgets/$line/title"]}
+  - {name: log scale, prompt: "Use a log scale on the trend", ops: [{op: add, path: "/widgets/$line/options", value: {log_scale: true}}], expect_changed: ["/widgets/$line/options"]}

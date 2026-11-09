@@ -1,0 +1,125 @@
+{
+  "candidate_keys": [
+    [
+      "date",
+      "region"
+    ]
+  ],
+  "change_points": [],
+  "columns": [
+    {
+      "distinct": 90,
+      "name": "date",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "time",
+      "time": {
+        "median_gap_seconds": 86400.0,
+        "monotonic": true,
+        "span_seconds": 7689600.0
+      },
+      "top_k": [],
+      "type": "date"
+    },
+    {
+      "distinct": 3,
+      "name": "region",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 90,
+          "value": "amer"
+        },
+        {
+          "count": 90,
+          "value": "apac"
+        },
+        {
+          "count": 90,
+          "value": "emea"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 182,
+      "name": "orders",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 399.0,
+        "mean": 239.726,
+        "min": 81.0,
+        "p50": 238.0,
+        "p95": 389.0,
+        "skew": 0.0730678
+      },
+      "role": "count",
+      "time": null,
+      "top_k": [],
+      "type": "integer"
+    },
+    {
+      "distinct": 270,
+      "name": "revenue",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 8989.16,
+        "mean": 5243.76,
+        "min": 1004.54,
+        "p50": 5385.66,
+        "p95": 8628.59,
+        "skew": -0.126722
+      },
+      "role": "measure",
+      "time": null,
+      "top_k": [],
+      "type": "float"
+    },
+    {
+      "distinct": 257,
+      "name": "avg_latency_ms",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 399.3,
+        "mean": 237.366,
+        "min": 90.6,
+        "p50": 231.65,
+        "p95": 377.375,
+        "skew": 0.119181
+      },
+      "role": "duration",
+      "time": null,
+      "top_k": [],
+      "type": "float"
+    }
+  ],
+  "correlations": [],
+  "dataset_version_id": "00000000-0000-0000-0000-000000000001",
+  "domain": "generic",
+  "domain_confidence": 0.6,
+  "grain": "one row per date + region",
+  "hierarchies": [],
+  "kind": "generic",
+  "outliers": {},
+  "row_count": 270,
+  "trends": [
+    {
+      "direction": -1,
+      "measure": "orders",
+      "strength": 0.0342
+    },
+    {
+      "direction": 1,
+      "measure": "revenue",
+      "strength": 0.00025
+    },
+    {
+      "direction": 1,
+      "measure": "avg_latency_ms",
+      "strength": 0.0901
+    }
+  ]
+}

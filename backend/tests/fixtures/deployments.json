@@ -1,0 +1,402 @@
+[
+ {
+  "service": "worker",
+  "env": "prod",
+  "deployed_at": "2026-09-01T08:00:00+05:30",
+  "duration_s": 553,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "prod",
+  "deployed_at": "2026-09-01T15:00:00+05:30",
+  "duration_s": 834,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "api",
+  "env": "prod",
+  "deployed_at": "2026-09-01T22:00:00+05:30",
+  "duration_s": 210,
+  "status": "failed",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "prod",
+  "deployed_at": "2026-09-02T05:00:00+05:30",
+  "duration_s": 772,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "api",
+  "env": "staging",
+  "deployed_at": "2026-09-02T12:00:00+05:30",
+  "duration_s": 179,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "staging",
+  "deployed_at": "2026-09-02T19:00:00+05:30",
+  "duration_s": 520,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "web",
+  "env": "prod",
+  "deployed_at": "2026-09-03T02:00:00+05:30",
+  "duration_s": 841,
+  "status": "failed",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "prod",
+  "deployed_at": "2026-09-03T09:00:00+05:30",
+  "duration_s": 247,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "prod",
+  "deployed_at": "2026-09-03T16:00:00+05:30",
+  "duration_s": 822,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "prod",
+  "deployed_at": "2026-09-03T23:00:00+05:30",
+  "duration_s": 600,
+  "status": "failed",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "web",
+  "env": "prod",
+  "deployed_at": "2026-09-04T06:00:00+05:30",
+  "duration_s": 233,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "web",
+  "env": "staging",
+  "deployed_at": "2026-09-04T13:00:00+05:30",
+  "duration_s": 33,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "prod",
+  "deployed_at": "2026-09-04T20:00:00+05:30",
+  "duration_s": 694,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "staging",
+  "deployed_at": "2026-09-05T03:00:00+05:30",
+  "duration_s": 352,
+  "status": "failed",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "api",
+  "env": "staging",
+  "deployed_at": "2026-09-05T10:00:00+05:30",
+  "duration_s": 638,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "web",
+  "env": "prod",
+  "deployed_at": "2026-09-05T17:00:00+05:30",
+  "duration_s": 596,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "staging",
+  "deployed_at": "2026-09-06T00:00:00+05:30",
+  "duration_s": 835,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "web",
+  "env": "prod",
+  "deployed_at": "2026-09-06T07:00:00+05:30",
+  "duration_s": 330,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "api",
+  "env": "prod",
+  "deployed_at": "2026-09-06T14:00:00+05:30",
+  "duration_s": 710,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "web",
+  "env": "staging",
+  "deployed_at": "2026-09-06T21:00:00+05:30",
+  "duration_s": 317,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "api",
+  "env": "prod",
+  "deployed_at": "2026-09-07T04:00:00+05:30",
+  "duration_s": 106,
+  "status": "failed",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "prod",
+  "deployed_at": "2026-09-07T11:00:00+05:30",
+  "duration_s": 446,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "web",
+  "env": "prod",
+  "deployed_at": "2026-09-07T18:00:00+05:30",
+  "duration_s": 219,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "staging",
+  "deployed_at": "2026-09-08T01:00:00+05:30",
+  "duration_s": 401,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "web",
+  "env": "prod",
+  "deployed_at": "2026-09-08T08:00:00+05:30",
+  "duration_s": 355,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "staging",
+  "deployed_at": "2026-09-08T15:00:00+05:30",
+  "duration_s": 626,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "api",
+  "env": "prod",
+  "deployed_at": "2026-09-08T22:00:00+05:30",
+  "duration_s": 348,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "prod",
+  "deployed_at": "2026-09-09T05:00:00+05:30",
+  "duration_s": 132,
+  "status": "failed",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "web",
+  "env": "prod",
+  "deployed_at": "2026-09-09T12:00:00+05:30",
+  "duration_s": 125,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "staging",
+  "deployed_at": "2026-09-09T19:00:00+05:30",
+  "duration_s": 170,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "staging",
+  "deployed_at": "2026-09-10T02:00:00+05:30",
+  "duration_s": 139,
+  "status": "failed",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "web",
+  "env": "prod",
+  "deployed_at": "2026-09-10T09:00:00+05:30",
+  "duration_s": 445,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "api",
+  "env": "staging",
+  "deployed_at": "2026-09-10T16:00:00+05:30",
+  "duration_s": 113,
+  "status": "success",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "api",
+  "env": "staging",
+  "deployed_at": "2026-09-10T23:00:00+05:30",
+  "duration_s": 675,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "api",
+  "env": "staging",
+  "deployed_at": "2026-09-11T06:00:00+05:30",
+  "duration_s": 203,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "api",
+  "env": "prod",
+  "deployed_at": "2026-09-11T13:00:00+05:30",
+  "duration_s": 620,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "staging",
+  "deployed_at": "2026-09-11T20:00:00+05:30",
+  "duration_s": 90,
+  "status": "failed",
+  "meta": {
+   "triggered_by": "ci"
+  }
+ },
+ {
+  "service": "worker",
+  "env": "prod",
+  "deployed_at": "2026-09-12T03:00:00+05:30",
+  "duration_s": 227,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "api",
+  "env": "prod",
+  "deployed_at": "2026-09-12T10:00:00+05:30",
+  "duration_s": 634,
+  "status": "failed",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ },
+ {
+  "service": "web",
+  "env": "staging",
+  "deployed_at": "2026-09-12T17:00:00+05:30",
+  "duration_s": 661,
+  "status": "success",
+  "meta": {
+   "triggered_by": "manual"
+  }
+ }
+]

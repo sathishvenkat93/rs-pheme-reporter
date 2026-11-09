@@ -1,0 +1,55 @@
+domain: test_execution
+label: Test execution
+measures:
+  - {id: pass_rate, label: Pass rate, expr: "ratio(count_if(status == 'passed'), count_if(status != 'skipped'))", format: percent, kpi: true, good: up, requires: [status]}
+  - {id: failed_count, label: Failed tests, expr: "count_if(status in ['failed', 'error'])", format: number, kpi: true, good: down, requires: [status]}
+  - {id: flaky_rate, label: Flaky rate, expr: "flaky_rate()", format: percent, kpi: true, good: down, requires: [build, suite, case, status]}
+  - {id: total_duration, label: Total duration, expr: "sum(duration_ms)", format: duration_ms, kpi: true, good: down, requires: [duration_ms]}
+  - {id: avg_duration, label: Average duration, expr: "avg(duration_ms)", format: duration_ms, kpi: true, good: down, requires: [duration_ms]}
+  - {id: runs, label: Test runs, expr: "count()", format: number}
+signature_visuals:
+  - {id: status_breakdown, title: Results by status, chart_type: donut, dimensions: [status], measures: [runs], requires: [status]}
+  - {id: pass_rate_by_build, title: Pass rate by build, chart_type: line, dimensions: [build], measures: [pass_rate], time_grain: build, requires: [build, status]}
+  - id: slowest_tests
+    title: Slowest tests
+    chart_type: bar
+    dimensions: [case]
+    measures: [avg_duration]
+    sort: [{field: avg_duration, dir: desc}]
+    top_n: 10
+    requires: [case, duration_ms]
+  - id: failure_pareto
+    title: Failures by error type
+    chart_type: pareto
+    dimensions: [error_type]
+    measures: [failed_count]
+    filters: [{op: in, field: status, values: [failed, error]}]
+    sort: [{field: failed_count, dir: desc}]
+    requires: [error_type, status]
+  - id: flaky_heatmap
+    title: Failures by test and build
+    chart_type: heatmap
+    dimensions: [case, build]
+    measures: [failed_count]
+    top_n: 20
+    requires: [case, build, status]
+  - {id: duration_by_suite, title: Duration distribution by suite, chart_type: box, dimensions: [suite], distribution_of: duration_ms, requires: [suite, duration_ms]}
+synonyms:
+  case: [test, tests, test case, test cases, test name, testcase]
+  suite: [suite, suites, test suite, module]
+  build: [build, builds, run, runs, build number, ci run]
+  status: [status, result, results, outcome]
+  duration_ms: [duration, run time, runtime, test duration, execution time]
+  timestamp: [time, date, when, over time, run date]
+  error_type: [error, errors, error type, failure reason, reason, exception]
+  failed_count: [failures, failed, failing tests, failed tests, failure count]
+  pass_rate: [pass rate, pass percentage, success rate, passing]
+  flaky_rate: [flaky, flakiness, flaky rate, flaky tests]
+concepts:
+  quality: [pass_rate, failed_count, flaky_rate]
+  stability: [flaky_rate, pass_rate]
+  speed: [avg_duration, total_duration]
+derived:
+  mttr: {label: mean time to recovery, needs: [failed_at, fixed_at]}
+  coverage: {label: code coverage, needs: [lines_covered, lines_total]}
+  cpu: {label: CPU usage, needs: [cpu_pct], kind: field}
