@@ -11,7 +11,7 @@ Status of the build plan in [PHEME_IMPLEMENTATION.md](../PHEME_IMPLEMENTATION.md
 
 ## Phase 2 — Data intelligence
 
-- [ ] M4 Profiler
+- [x] M4 Profiler
 - [ ] M5 Query
 - [ ] M6 Recommender
 - [ ] M7 Feasibility

@@ -1,0 +1,221 @@
+{
+  "candidate_keys": [
+    [
+      "timestamp"
+    ]
+  ],
+  "change_points": [
+    {
+      "at": "2026-10-05T14:09:53.703000+00:00",
+      "measure": "bytes"
+    },
+    {
+      "at": "2026-10-05T14:04:59.850000+00:00",
+      "measure": "threads"
+    }
+  ],
+  "columns": [
+    {
+      "distinct": 2000,
+      "name": "timestamp",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "time",
+      "time": {
+        "median_gap_seconds": 0.3,
+        "monotonic": true,
+        "span_seconds": 599.7
+      },
+      "top_k": [],
+      "type": "timestamp"
+    },
+    {
+      "distinct": 8,
+      "name": "label",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 268,
+          "value": "POST /login"
+        },
+        {
+          "count": 264,
+          "value": "GET /api/orders/{id}"
+        },
+        {
+          "count": 260,
+          "value": "POST /api/orders"
+        },
+        {
+          "count": 255,
+          "value": "GET /search"
+        },
+        {
+          "count": 252,
+          "value": "GET /login"
+        },
+        {
+          "count": 238,
+          "value": "GET /api/users"
+        },
+        {
+          "count": 234,
+          "value": "GET /static/app.js"
+        },
+        {
+          "count": 229,
+          "value": "GET /"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 599,
+      "name": "latency_ms",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 1414.0,
+        "mean": 284.619,
+        "min": 28.0,
+        "p50": 240.0,
+        "p95": 612.0,
+        "skew": 1.55268
+      },
+      "role": "duration",
+      "time": null,
+      "top_k": [],
+      "type": "float"
+    },
+    {
+      "distinct": 2,
+      "name": "success",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "status",
+      "time": null,
+      "top_k": [
+        {
+          "count": 1938,
+          "value": "true"
+        },
+        {
+          "count": 62,
+          "value": "false"
+        }
+      ],
+      "type": "boolean"
+    },
+    {
+      "distinct": 1959,
+      "name": "bytes",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 49978.0,
+        "mean": 25588.0,
+        "min": 523.0,
+        "p50": 25655.5,
+        "p95": 47348.1,
+        "skew": -0.00791055
+      },
+      "role": "measure",
+      "time": null,
+      "top_k": [],
+      "type": "integer"
+    },
+    {
+      "distinct": 50,
+      "name": "threads",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 50.0,
+        "mean": 25.5,
+        "min": 1.0,
+        "p50": 25.5,
+        "p95": 48.0,
+        "skew": 5.07317e-16
+      },
+      "role": "count",
+      "time": null,
+      "top_k": [],
+      "type": "integer"
+    },
+    {
+      "distinct": 4,
+      "name": "response_code",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 1938,
+          "value": "200"
+        },
+        {
+          "count": 24,
+          "value": "504"
+        },
+        {
+          "count": 20,
+          "value": "502"
+        },
+        {
+          "count": 18,
+          "value": "500"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 1,
+      "name": "orig_tz",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 2000,
+          "value": "UTC"
+        }
+      ],
+      "type": "string"
+    }
+  ],
+  "correlations": [],
+  "dataset_version_id": "00000000-0000-0000-0000-000000000001",
+  "domain": "performance",
+  "domain_confidence": 0.95,
+  "grain": "one row per request sample",
+  "hierarchies": [
+    [
+      "success",
+      "response_code"
+    ]
+  ],
+  "kind": "perf_samples",
+  "outliers": {
+    "latency_ms": 63
+  },
+  "row_count": 2000,
+  "trends": [
+    {
+      "direction": 1,
+      "measure": "latency_ms",
+      "strength": 0.157
+    },
+    {
+      "direction": -1,
+      "measure": "bytes",
+      "strength": 0.0952
+    },
+    {
+      "direction": 1,
+      "measure": "threads",
+      "strength": 0.982
+    }
+  ]
+}

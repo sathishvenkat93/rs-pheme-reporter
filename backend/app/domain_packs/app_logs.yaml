@@ -1,0 +1,11 @@
+# Stub pack (MVP): enough for KPIs on level/message logs.
+domain: app_logs
+label: Application logs
+measures:
+  - {id: error_rate, label: Error rate, expr: "ratio(count_if(level in ['ERROR', 'error', 'FATAL', 'fatal']), count())", format: percent, kpi: true, good: down, requires: [level]}
+  - {id: events, label: Events, expr: "count()", format: number, kpi: true}
+signature_visuals:
+  - {id: level_breakdown, title: Events by level, chart_type: stacked_bar, dimensions: [level], measures: [events], requires: [level]}
+synonyms:
+  level: [level, severity, log level]
+  message: [message, messages, log line]

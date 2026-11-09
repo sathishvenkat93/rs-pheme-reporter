@@ -1,0 +1,124 @@
+{
+  "candidate_keys": [
+    [
+      "sku"
+    ]
+  ],
+  "change_points": [],
+  "columns": [
+    {
+      "distinct": 25,
+      "name": "sku",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "identifier",
+      "time": null,
+      "top_k": [
+        {
+          "count": 1,
+          "value": "SKU-1000"
+        },
+        {
+          "count": 1,
+          "value": "SKU-1001"
+        },
+        {
+          "count": 1,
+          "value": "SKU-1002"
+        },
+        {
+          "count": 1,
+          "value": "SKU-1003"
+        },
+        {
+          "count": 1,
+          "value": "SKU-1004"
+        },
+        {
+          "count": 1,
+          "value": "SKU-1005"
+        },
+        {
+          "count": 1,
+          "value": "SKU-1006"
+        },
+        {
+          "count": 1,
+          "value": "SKU-1007"
+        },
+        {
+          "count": 1,
+          "value": "SKU-1008"
+        },
+        {
+          "count": 1,
+          "value": "SKU-1009"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 2,
+      "name": "warehouse",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 16,
+          "value": "north"
+        },
+        {
+          "count": 9,
+          "value": "south"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 25,
+      "name": "stock",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 479.0,
+        "mean": 280.6,
+        "min": 25.0,
+        "p50": 306.0,
+        "p95": 469.2,
+        "skew": -0.40565
+      },
+      "role": "measure",
+      "time": null,
+      "top_k": [],
+      "type": "integer"
+    },
+    {
+      "distinct": 25,
+      "name": "unit_cost",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 77.65,
+        "mean": 43.9456,
+        "min": 11.48,
+        "p50": 45.67,
+        "p95": 73.828,
+        "skew": -0.115368
+      },
+      "role": "measure",
+      "time": null,
+      "top_k": [],
+      "type": "float"
+    }
+  ],
+  "correlations": [],
+  "dataset_version_id": "00000000-0000-0000-0000-000000000001",
+  "domain": "generic",
+  "domain_confidence": 0.6,
+  "grain": "one row per sku",
+  "hierarchies": [],
+  "kind": "generic",
+  "outliers": {},
+  "row_count": 25,
+  "trends": []
+}

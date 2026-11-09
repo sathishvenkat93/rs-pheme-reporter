@@ -1,0 +1,205 @@
+{
+  "candidate_keys": [
+    [
+      "timestamp"
+    ]
+  ],
+  "change_points": [
+    {
+      "at": "2026-10-05T14:00:11.760000+00:00",
+      "measure": "threads"
+    }
+  ],
+  "columns": [
+    {
+      "distinct": 50,
+      "name": "timestamp",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "time",
+      "time": {
+        "median_gap_seconds": 0.3,
+        "monotonic": true,
+        "span_seconds": 14.7
+      },
+      "top_k": [],
+      "type": "timestamp"
+    },
+    {
+      "distinct": 8,
+      "name": "label",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 11,
+          "value": "GET /"
+        },
+        {
+          "count": 8,
+          "value": "GET /search"
+        },
+        {
+          "count": 7,
+          "value": "GET /api/orders/{id}"
+        },
+        {
+          "count": 7,
+          "value": "GET /static/app.js"
+        },
+        {
+          "count": 6,
+          "value": "GET /api/users"
+        },
+        {
+          "count": 5,
+          "value": "GET /login"
+        },
+        {
+          "count": 5,
+          "value": "POST /api/orders"
+        },
+        {
+          "count": 1,
+          "value": "POST /login"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 47,
+      "name": "latency_ms",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 1141.0,
+        "mean": 243.58,
+        "min": 40.0,
+        "p50": 205.5,
+        "p95": 698.55,
+        "skew": 2.25739
+      },
+      "role": "duration",
+      "time": null,
+      "top_k": [],
+      "type": "float"
+    },
+    {
+      "distinct": 2,
+      "name": "success",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "status",
+      "time": null,
+      "top_k": [
+        {
+          "count": 45,
+          "value": "true"
+        },
+        {
+          "count": 5,
+          "value": "false"
+        }
+      ],
+      "type": "boolean"
+    },
+    {
+      "distinct": 50,
+      "name": "bytes",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 49117.0,
+        "mean": 26659.6,
+        "min": 1080.0,
+        "p50": 26816.5,
+        "p95": 46905.7,
+        "skew": -0.0916196
+      },
+      "role": "measure",
+      "time": null,
+      "top_k": [],
+      "type": "integer"
+    },
+    {
+      "distinct": 2,
+      "name": "threads",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 2.0,
+        "mean": 1.2,
+        "min": 1.0,
+        "p50": 1.0,
+        "p95": 2.0,
+        "skew": 1.5468
+      },
+      "role": "count",
+      "time": null,
+      "top_k": [],
+      "type": "integer"
+    },
+    {
+      "distinct": 2,
+      "name": "response_code",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 45,
+          "value": "200"
+        },
+        {
+          "count": 5,
+          "value": "500"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 1,
+      "name": "orig_tz",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 50,
+          "value": "UTC"
+        }
+      ],
+      "type": "string"
+    }
+  ],
+  "correlations": [],
+  "dataset_version_id": "00000000-0000-0000-0000-000000000001",
+  "domain": "performance",
+  "domain_confidence": 0.95,
+  "grain": "one row per request sample",
+  "hierarchies": [],
+  "kind": "perf_samples",
+  "outliers": {
+    "latency_ms": 3,
+    "threads": 10
+  },
+  "row_count": 50,
+  "trends": [
+    {
+      "direction": 1,
+      "measure": "latency_ms",
+      "strength": 0.108
+    },
+    {
+      "direction": -1,
+      "measure": "bytes",
+      "strength": 0.0841
+    },
+    {
+      "direction": 1,
+      "measure": "threads",
+      "strength": 0.327
+    }
+  ]
+}

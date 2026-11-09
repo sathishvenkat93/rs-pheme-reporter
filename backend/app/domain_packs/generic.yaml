@@ -1,0 +1,9 @@
+# Generic pack: KPIs and visuals come from the profile (M6), not from here.
+domain: generic
+label: General data
+measures:
+  - {id: rows, label: Rows, expr: "count()", format: number, kpi: true}
+synonyms:
+  orders: [traffic, volume, sales count]
+derived:
+  mttr: {label: mean time to recovery, needs: [opened_at, resolved_at]}

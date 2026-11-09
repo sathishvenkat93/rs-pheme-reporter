@@ -1,0 +1,11 @@
+# Stub pack (MVP).
+domain: cicd
+label: CI/CD pipelines
+measures:
+  - {id: success_rate, label: Success rate, expr: "ratio(count_if(status in ['success', 'passed', 'ok']), count())", format: percent, kpi: true, good: up, requires: [status]}
+  - {id: runs, label: Runs, expr: "count()", format: number, kpi: true}
+signature_visuals: []
+synonyms:
+  status: [status, result, outcome]
+derived:
+  lead_time: {label: lead time for changes, needs: [committed_at, deployed_at]}

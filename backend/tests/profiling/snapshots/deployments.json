@@ -1,0 +1,152 @@
+{
+  "candidate_keys": [
+    [
+      "deployed_at"
+    ]
+  ],
+  "change_points": [],
+  "columns": [
+    {
+      "distinct": 3,
+      "name": "service",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 18,
+          "value": "worker"
+        },
+        {
+          "count": 11,
+          "value": "api"
+        },
+        {
+          "count": 11,
+          "value": "web"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 2,
+      "name": "env",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 24,
+          "value": "prod"
+        },
+        {
+          "count": 16,
+          "value": "staging"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 40,
+      "name": "deployed_at",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "time",
+      "time": {
+        "median_gap_seconds": 25200.0,
+        "monotonic": true,
+        "span_seconds": 982800.0
+      },
+      "top_k": [],
+      "type": "timestamp"
+    },
+    {
+      "distinct": 40,
+      "name": "duration_s",
+      "null_pct": 0.0,
+      "numeric": {
+        "max": 841.0,
+        "mean": 426.275,
+        "min": 33.0,
+        "p50": 378.0,
+        "p95": 834.05,
+        "skew": 0.176075
+      },
+      "role": "duration",
+      "time": null,
+      "top_k": [],
+      "type": "integer"
+    },
+    {
+      "distinct": 2,
+      "name": "status",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "status",
+      "time": null,
+      "top_k": [
+        {
+          "count": 31,
+          "value": "success"
+        },
+        {
+          "count": 9,
+          "value": "failed"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 2,
+      "name": "meta.triggered_by",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 24,
+          "value": "ci"
+        },
+        {
+          "count": 16,
+          "value": "manual"
+        }
+      ],
+      "type": "string"
+    },
+    {
+      "distinct": 1,
+      "name": "orig_tz",
+      "null_pct": 0.0,
+      "numeric": null,
+      "role": "category",
+      "time": null,
+      "top_k": [
+        {
+          "count": 40,
+          "value": "+05:30"
+        }
+      ],
+      "type": "string"
+    }
+  ],
+  "correlations": [],
+  "dataset_version_id": "00000000-0000-0000-0000-000000000001",
+  "domain": "cicd",
+  "domain_confidence": 0.7,
+  "grain": "one row per deployed_at",
+  "hierarchies": [],
+  "kind": "generic",
+  "outliers": {},
+  "row_count": 40,
+  "trends": [
+    {
+      "direction": -1,
+      "measure": "duration_s",
+      "strength": 0.187
+    }
+  ]
+}
