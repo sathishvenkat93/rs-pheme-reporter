@@ -18,6 +18,8 @@ _TEST_ENV = {
     "PHEME_DATABASE_URL": "postgresql+psycopg://pheme_app:pheme_app@localhost:5432/pheme_test",
     "PHEME_MIGRATION_DATABASE_URL": "postgresql+psycopg://pheme:pheme@localhost:5432/pheme_test",
     "PHEME_AUTH_MODE": "none",
+    "PHEME_RATE_LIMIT_PER_MIN": "0",  # enabled explicitly by the rate-limit test
+    "PHEME_LOG_FORMAT": "text",
     "PHEME_ENV": "test",
     "PHEME_REDIS_URL": "redis://localhost:6379/15",
     "PHEME_S3_BUCKET": "pheme-test",

@@ -19,6 +19,7 @@ from pydantic import BaseModel
 
 from app.core.config import get_settings
 from app.core.redis import get_redis
+from app.core.telemetry import span
 from app.models.dataset import ColumnSchema, ColumnType
 from app.models.query import Measure, SemanticQuery
 from app.query import engine
@@ -78,7 +79,11 @@ def run_compiled(
     timer = threading.Timer(timeout_s, con.interrupt)
     timer.start()
     try:
-        rows = con.execute(compiled.sql, compiled.params).fetchall()
+        with span(
+            "duckdb.query", **{"db.system": "duckdb", "db.statement": compiled.sql[:2000]}
+        ) as s:
+            rows = con.execute(compiled.sql, compiled.params).fetchall()
+            s.set_attribute("db.rows", len(rows))
     except duckdb.InterruptException:
         raise QueryError(f"The query took longer than {timeout_s:g} s and was stopped.") from None
     except duckdb.Error as exc:

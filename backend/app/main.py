@@ -8,6 +8,7 @@ from fastapi.middleware.cors import CORSMiddleware
 from app.api import auth, dashboards, datasets, health, plans, query, sessions, uploads
 from app.core.auth import check_startup
 from app.core.logging import configure_logging
+from app.core.telemetry import instrument
 
 
 def create_app() -> FastAPI:
@@ -31,6 +32,7 @@ def create_app() -> FastAPI:
         dashboards.router,
     ):
         app.include_router(router)
+    instrument(app)
     return app
 
 

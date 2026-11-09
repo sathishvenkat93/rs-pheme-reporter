@@ -15,6 +15,7 @@ from sqlalchemy.orm import Session
 
 from app.core.principal import Principal
 from app.core.security import Redactor, data_block
+from app.core.telemetry import span
 from app.db.tables import (
     AuditEvent,
     DashboardRow,
@@ -242,6 +243,12 @@ class Agent:
 
     # ------------------------------------------------------------------ chat
     def handle_message(self, text: str, selected_widget_ids: list[str] | None = None) -> str:
+        with span(
+            "agent.turn", **{"session.id": str(self.session.id), "session.state": self.state.value}
+        ):
+            return self._handle_message(text, selected_widget_ids)
+
+    def _handle_message(self, text: str, selected_widget_ids: list[str] | None = None) -> str:
         self._persist("user", {"text": text, "selected": selected_widget_ids or []})
         if self.state in (State.INGEST, State.PROFILE) and self.propose() is None:
             reply = "Upload a log or results file to get started."
@@ -329,6 +336,12 @@ class Agent:
         self.db.flush()
 
     def _execute(self, name: str, raw: dict[str, Any]) -> tuple[Any, bool]:
+        with span(f"tool.{name}", **{"tool.name": name, "session.state": self.state.value}) as s:
+            out, is_error = self._execute_tool(name, raw)
+            s.set_attribute("tool.error", is_error)
+            return out, is_error
+
+    def _execute_tool(self, name: str, raw: dict[str, Any]) -> tuple[Any, bool]:
         spec = TOOLS[name]
         try:
             args = spec.input.model_validate(self.redactor.restore_value(raw))

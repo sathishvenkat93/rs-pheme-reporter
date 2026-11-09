@@ -11,7 +11,7 @@ from pydantic import BaseModel
 from app.api.deps import DB, Caller
 from app.core.config import get_settings
 from app.core.redis import get_queue
-from app.db.tables import DatasetRow, SessionRow, Upload
+from app.db.tables import DatasetRow, SessionRow, Upload, Workspace
 from app.ingestion import storage
 
 router = APIRouter(prefix="/uploads", tags=["uploads"])
@@ -58,7 +58,10 @@ def create_upload(
     dataset_id: Annotated[UUID | None, Form()] = None,
     build: Annotated[str | None, Form(max_length=200)] = None,
 ) -> UploadOut:
-    limit = get_settings().max_upload_bytes
+    workspace = db.get(Workspace, caller.workspace_id)
+    limit = (
+        workspace.max_upload_bytes if workspace and workspace.max_upload_bytes else None
+    ) or get_settings().max_upload_bytes
     declared = request.headers.get("content-length")
     if declared and declared.isdigit() and int(declared) > limit + 64 * 1024:
         raise _too_large(limit)

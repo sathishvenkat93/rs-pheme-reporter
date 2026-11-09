@@ -32,7 +32,7 @@ Status of the build plan in [PHEME_IMPLEMENTATION.md](../PHEME_IMPLEMENTATION.md
 ## Phase 5 — Hardening and evaluation
 
 - [x] M12 Security & audit
-- [ ] M13 Observability & limits
+- [x] M13 Observability & limits
 - [ ] M14 Evaluation & e2e
 - [ ] Gate passed
 

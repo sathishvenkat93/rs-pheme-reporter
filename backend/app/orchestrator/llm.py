@@ -258,6 +258,28 @@ def _empty_for(schema: dict[str, Any]) -> Any:
     return None if "null" in str(schema.get("anyOf", "")) else ""
 
 
+def traced(llm: LLM, request: Request) -> LLMResponse:
+    """Call the model inside an ``llm.<task>`` span with model, tokens, latency and cost."""
+    import time
+
+    from app.core.telemetry import llm_cost, span
+
+    with span(f"llm.{request.task}", **{"llm.role": request.role, "llm.state": request.state}) as s:
+        start = time.perf_counter()
+        resp = llm.complete(request)
+        u = resp.usage
+        model = resp.model or request.role
+        s.set_attribute("llm.model", model)
+        s.set_attribute("llm.input_tokens", u.input_tokens)
+        s.set_attribute("llm.output_tokens", u.output_tokens)
+        s.set_attribute("llm.cache_read_tokens", u.cache_read_input_tokens)
+        s.set_attribute("llm.latency_ms", round((time.perf_counter() - start) * 1000, 1))
+        cost = llm_cost(model, u.input_tokens, u.output_tokens, u.cache_read_input_tokens)
+        if cost is not None:
+            s.set_attribute("llm.cost_usd", cost)
+        return resp
+
+
 def make_llm() -> LLM:
     """The app's LLM: FakeLLM unless a real one is explicitly configured."""
     s = get_settings()
@@ -310,7 +332,7 @@ def run_tool_loop(
     calls: list[ToolCall] = []
     usage = Usage()
     for i in range(1, max_iterations + 1):
-        resp = llm.complete(Request("main", task, state(), system, messages, tools_for()))
+        resp = traced(llm, Request("main", task, state(), system, messages, tools_for()))
         usage = usage + resp.usage
         assistant = {
             "role": "assistant",
@@ -356,8 +378,9 @@ def structured[T: BaseModel](
     schema = closed_schema(model.model_json_schema())
     messages: list[Block] = [{"role": "user", "content": prompt}]
     for attempt in range(2):
-        resp = llm.complete(
-            Request(role, task, state, system, messages, [], output_schema=schema, max_tokens=4000)
+        resp = traced(
+            llm,
+            Request(role, task, state, system, messages, [], output_schema=schema, max_tokens=4000),
         )
         try:
             return model.model_validate_json(resp.text or "{}")

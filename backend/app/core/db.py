@@ -18,8 +18,12 @@ BYPASS = "rls_bypass"  # Session.info key: trusted system work (ingestion worker
 
 @lru_cache
 def get_engine() -> Engine:
-    """Process-wide engine (connects as the non-owner app role)."""
-    return create_engine(get_settings().database_url, pool_pre_ping=True)
+    """Process-wide engine (connects as the non-owner app role), traced."""
+    from app.core.telemetry import instrument_engine
+
+    engine = create_engine(get_settings().database_url, pool_pre_ping=True)
+    instrument_engine(engine)
+    return engine
 
 
 @lru_cache

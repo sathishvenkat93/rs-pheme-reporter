@@ -71,3 +71,7 @@ It writes `backend/eval/reports/<date>.md`. Real-LLM runs happen only with `PHEM
 - **M12** — Workspace members can view all dashboards in their workspace (viewer); shares grant editor. Sharing is owner-only, within the workspace.
 - **M12** — A minimal sign-in dialog opens on any 401 (dev mode). OIDC sign-in pages belong to the identity provider; Pheme only verifies tokens.
 - **M12** — Local `.env` files created before M12 still point `PHEME_DATABASE_URL` at the owner role, which bypasses RLS. Copy the new lines from `.env.example`.
+- **M13** — The OpenTelemetry SQLAlchemy instrumentation doesn't support SQLAlchemy 2.1 (it logs a warning and instruments nothing), so Postgres spans come from our own SQLAlchemy event hooks (`postgres.<verb>` spans), attached to each engine as `get_engine()` creates it.
+- **M13** — The rate limit is a Redis fixed one-minute window per workspace, checked after authentication (health isn't limited). The test suite and the e2e stack set it to 0; the rate-limit test enables it.
+- **M13** — LLM cost comes from a small built-in price table (Sonnet 5.5, Haiku 5.5, Opus 5.5); unknown models record tokens without a cost.
+- **M13** — Logs are JSON by default (`PHEME_LOG_FORMAT=text` for local reading) and include `trace_id`/`span_id` inside spans.

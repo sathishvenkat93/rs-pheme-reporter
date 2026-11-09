@@ -9,6 +9,7 @@ export PHEME_REDIS_URL="redis://localhost:6379/14"
 export PHEME_S3_BUCKET="pheme-e2e"
 export PHEME_QUEUE_NAME="pheme-e2e"
 export PHEME_LLM="fake"
+export PHEME_RATE_LIMIT_PER_MIN=0  # one browser drives many requests from one workspace
 export PHEME_LOCAL_CACHE_DIR="${TMPDIR:-/tmp}/pheme-e2e-cache"
 export OBJC_DISABLE_INITIALIZE_FORK_SAFETY=YES
 export E2E_API_PORT="${E2E_API_PORT:-8010}"

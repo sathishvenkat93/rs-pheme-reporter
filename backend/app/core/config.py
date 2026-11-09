@@ -56,6 +56,15 @@ class Settings(BaseSettings):
 
     queue_name: str = "pheme"
 
+    # Observability and limits
+    log_format: Literal["json", "text"] = "json"
+    otel_exporter: Literal["none", "console", "otlp"] = "none"
+    otel_endpoint: str = "http://localhost:4318/v1/traces"
+    langfuse_host: str = ""  # when set (with keys), traces also go to Langfuse's OTLP endpoint
+    langfuse_public_key: str = ""
+    langfuse_secret_key: str = ""
+    rate_limit_per_min: int = Field(default=600, ge=0)  # per workspace; 0 disables
+
     query_timeout_s: float = Field(default=30.0, gt=0)
     query_row_cap: int = Field(default=10_000, gt=0)
     query_cache_ttl_s: int = Field(default=86_400, gt=0)
