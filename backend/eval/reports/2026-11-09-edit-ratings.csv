@@ -1,0 +1,8 @@
+golden,edit,prompt,automated_result,rater,applied_correctly_first_try (y/n),notes
+daily_metrics,title,Title it Q3 sales,ok: changed ['/title'],,,
+jmeter_load,rename latency trend,Call the p95 trend Latency,ok: changed ['/widgets/3/title'],,,
+jmeter_load,log scale,Use a log scale on the trend,ok: changed ['/widgets/3/options'],,,
+junit_regression,rename trend,Rename the pass-rate trend to Build health,ok: changed ['/widgets/2/title'],,,
+junit_regression,bar instead of line,Make the trend a bar chart,ok: changed ['/widgets/2/type'],,,
+junit_regression,threshold,Red when pass rate is below 90%,ok: changed ['/widgets/0/thresholds'],,,
+junit_regression,bad donut,Make the pass-rate KPI a donut,ok: refused: w_kpi_pass_rate: ['a donut needs at most 6 parts'],,,

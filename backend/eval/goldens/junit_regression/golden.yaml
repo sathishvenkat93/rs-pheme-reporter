@@ -1,0 +1,45 @@
+name: junit_regression
+description: Five JUnit builds (3 suites, flaky cases). Seed golden built from the fixtures.
+files: [junit-build-101.xml, junit-build-102.xml, junit-build-103.xml, junit-build-104.xml, junit-build-105.xml]
+domain: test_execution
+experts:
+  - name: author-a
+    source: "Self-made by the build agent from test-reporting practice; NOT an independent expert. Replace with pilot labels."
+    top8:
+      - {chart: kpi, measures: [pass_rate]}
+      - {chart: kpi, measures: [failed_count]}
+      - {chart: kpi, measures: [flaky_rate]}
+      - {chart: line, dims: [build], measures: [pass_rate]}
+      - {chart: [pareto, bar], dims: [error_type], measures: [failed_count]}
+      - {chart: bar, dims: [case], measures: [avg_duration]}
+      - {chart: box, dims: [suite]}
+      - {chart: heatmap, dims: [case, build]}
+  - name: author-b
+    source: "Second self-made list (QA-lead perspective), written independently of author-a; still NOT independent of the system."
+    top8:
+      - {chart: kpi, measures: [pass_rate]}
+      - {chart: kpi, measures: [total_duration]}
+      - {chart: line, dims: [build], measures: [pass_rate]}
+      - {chart: [stacked_bar, donut], dims: [status]}
+      - {chart: [pareto, bar], dims: [error_type], measures: [failed_count]}
+      - {chart: bar, dims: [case], measures: [avg_duration]}
+      - {chart: histogram, dims: [duration_ms]}
+      - {chart: table}
+requests:
+  - {id: pie, text: "Pie of failures by test", chart_type: pie, phrases: [[failures, measure], [test, split]], expected: adjusted}
+  - {id: names, text: "Line chart of test names", chart_type: line, phrases: [[test names, x]], expected: not_feasible}
+  - {id: mttr, text: "MTTR by week", chart_type: line, phrases: [[mttr, y]], time_grain: week, expected: not_feasible}
+  - {id: cpu, text: "CPU usage per build", chart_type: line, phrases: [[cpu usage, y], [build, x]], expected: not_feasible}
+  - {id: coverage, text: "Code coverage trend", chart_type: line, phrases: [[coverage, y]], expected: not_feasible}
+  - {id: sankey, text: "Sankey of suites to cases", chart_type: sankey, phrases: [[suite, x], [case, y]], expected: not_feasible}
+  - {id: quality, text: "Show quality", chart_type: null, phrases: [[quality, null]], expected: needs_clarification}
+  - {id: passbuild, text: "Pass rate by build", chart_type: line, phrases: [[build, x], [pass rate, measure]], expected: feasible}
+  - {id: failsuite, text: "Failures by suite as bars", chart_type: bar, phrases: [[suite, x], [failures, measure]], expected: feasible}
+  - {id: slow, text: "Slowest tests", chart_type: bar, phrases: [[test, x], [duration, y]], expected: adjusted}
+  - {id: durhist, text: "Histogram of test durations", chart_type: histogram, phrases: [[duration, x]], expected: feasible}
+  - {id: flaky, text: "Flaky rate KPI", chart_type: kpi, phrases: [[flaky rate, measure]], expected: feasible}
+edits:
+  - {name: rename trend, prompt: "Rename the pass-rate trend to Build health", ops: [{op: replace, path: "/widgets/$line/title", value: "Build health"}], expect_changed: ["/widgets/$line/title"]}
+  - {name: bar instead of line, prompt: "Make the trend a bar chart", ops: [{op: replace, path: "/widgets/$line/type", value: bar}], expect_changed: ["/widgets/$line/type"]}
+  - {name: threshold, prompt: "Red when pass rate is below 90%", ops: [{op: replace, path: "/widgets/$kpi/thresholds", value: [{below: 0.9, color: critical}]}], expect_changed: ["/widgets/$kpi/thresholds"]}
+  - {name: bad donut, prompt: "Make the pass-rate KPI a donut", ops: [{op: replace, path: "/widgets/$kpi/type", value: donut}], expect_changed: []}

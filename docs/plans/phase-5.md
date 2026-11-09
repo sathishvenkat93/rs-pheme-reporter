@@ -75,3 +75,8 @@ It writes `backend/eval/reports/<date>.md`. Real-LLM runs happen only with `PHEM
 - **M13** — The rate limit is a Redis fixed one-minute window per workspace, checked after authentication (health isn't limited). The test suite and the e2e stack set it to 0; the rate-limit test enables it.
 - **M13** — LLM cost comes from a small built-in price table (Sonnet 5.5, Haiku 5.5, Opus 5.5); unknown models record tokens without a cost.
 - **M13** — Logs are JSON by default (`PHEME_LOG_FORMAT=text` for local reading) and include `trace_id`/`span_id` inside spans.
+- **M14** — The seed goldens' expert lists were written by the build agent (labelled so in every file and report); no pilot data or independent labels were available.
+- **M14** — Edit success is measured automatically (ops applied, validated, changed paths checked, invalid edits refused). The human-rated R10 metric gets a CSV rating sheet next to each report.
+- **M14** — The recommendation-overlap target uses the corrected plan's relative rule (≥ 70%, or agreement − 10 points when experts agree less). Experts agreed 56%; overlap 62.5%.
+- **M14** — Known weakness, reported rather than tuned away: "churn rate" (no such data) gets needs_clarification instead of not_feasible, because fuzzy matching's middle band catches it.
+- **M14** — Time to first proposal is measured in process on a 50 MB synthetic CSV (parse, profile, recommend, curate), without network upload or live-LLM latency.

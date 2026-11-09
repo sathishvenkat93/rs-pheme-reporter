@@ -26,7 +26,7 @@ dev: install deps-up migrate ## Run deps, API, worker and frontend (Ctrl-C stops
 check: deps-up check-backend check-frontend ## ruff, mypy, pytest, eslint, tsc, vitest
 
 check-backend:
-	cd backend && uv run ruff check . && uv run ruff format --check . && uv run mypy app tests
+	cd backend && uv run ruff check . && uv run ruff format --check . && uv run mypy app tests eval
 	cd backend && uv run pytest -m "not slow"
 
 check-frontend:
@@ -52,8 +52,8 @@ types: ## Regenerate frontend types from the spec and plan JSON Schemas
 	cd backend && uv run python -c "import json; from app.main import app; print(json.dumps(app.openapi(), sort_keys=True))" > ../frontend/src/api/generated/openapi.json
 	cd frontend && pnpm exec openapi-typescript src/api/generated/openapi.json -o src/api/generated/openapi.ts
 
-eval: ## Run the evaluation harness
-	@echo "make eval: placeholder until Phase 5 (M14)"
+eval: deps-up ## Run the evaluation harness (writes backend/eval/reports/<date>.md)
+	cd backend && PHEME_LOG_FORMAT=text uv run python -m eval.run
 
 demo-data: ## Print profiles, recommendations and verdicts for the fixtures
 	cd backend && uv run python ../scripts/demo_data.py

@@ -1,0 +1,25 @@
+name: daily_metrics
+description: 90 days of daily orders/revenue/latency by region (generic CSV). Seed golden.
+files: [daily-metrics.csv]
+domain: generic
+experts:
+  - name: author-a
+    source: "Self-made by the build agent (business analytics view); NOT an independent expert."
+    top8:
+      - {chart: kpi}
+      - {chart: line, dims: [date], measures: [orders]}
+      - {chart: line, dims: [date], measures: [revenue]}
+      - {chart: line, dims: [date, region]}
+      - {chart: bar, dims: [region], measures: [orders]}
+      - {chart: box, dims: [region]}
+      - {chart: scatter, dims: [orders, revenue]}
+      - {chart: table}
+requests:
+  - {id: hourly, text: "Hourly trend of orders", chart_type: line, phrases: [[orders, y]], time_grain: hourly, expected: adjusted}
+  - {id: globe, text: "3D globe of traffic", chart_type: 3d globe, phrases: [[traffic, measure]], expected: not_feasible}
+  - {id: mttr, text: "MTTR per region", chart_type: bar, phrases: [[mttr, y], [region, x]], expected: not_feasible}
+  - {id: rev, text: "Revenue by region", chart_type: bar, phrases: [[region, x], [revenue, y]], expected: feasible}
+  - {id: daily, text: "Daily orders", chart_type: line, phrases: [[date, x], [orders, y]], expected: feasible}
+  - {id: churn, text: "Churn rate by month", chart_type: line, phrases: [[churn rate, y]], expected: not_feasible}
+edits:
+  - {name: title, prompt: "Title it Q3 sales", ops: [{op: replace, path: /title, value: "Q3 sales"}], expect_changed: [/title]}
