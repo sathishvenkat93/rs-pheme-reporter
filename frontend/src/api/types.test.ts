@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { DashboardSpec } from ".";
+import type { DashboardSpec } from "./types";
 
 // The R2 example from the plan; `satisfies` makes tsc check it against the generated types.
 const r2 = {

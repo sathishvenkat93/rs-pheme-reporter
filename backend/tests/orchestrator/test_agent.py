@@ -155,3 +155,31 @@ def test_reopened_dashboard_session_starts_published(api: TestClient) -> None:
         ).status_code
         == 404
     )
+
+
+def test_option_toggle_and_message_history(api: TestClient) -> None:
+    s = junit_session(api)
+    sid = s["id"]
+    assert s["dataset_ids"] == [s["dataset_id"]]
+    plan = _plan(api, sid)
+    first = next(o for o in plan["options"] if o["status"] == "recommended")
+    optional = next(o for o in plan["options"] if o["status"] == "optional")
+    assert (
+        api.post(f"/sessions/{sid}/options/{first['id']}", json={"included": False}).status_code
+        == 200
+    )
+    assert (
+        api.post(f"/sessions/{sid}/options/{optional['id']}", json={"included": True}).json()[
+            "state"
+        ]
+        == "REFINE"
+    )
+    statuses = {o["id"]: o["status"] for o in _plan(api, sid)["options"]}
+    assert statuses[first["id"]] == "excluded"
+    assert statuses[optional["id"]] == "requested"
+    assert api.post(f"/sessions/{sid}/options/nope", json={"included": True}).status_code == 409
+
+    say(api, sid, "Add a bar chart of failures by suite")
+    history = api.get(f"/sessions/{sid}/messages").json()
+    assert [m["role"] for m in history] == ["user", "assistant"]
+    assert history[0]["text"] == "Add a bar chart of failures by suite"

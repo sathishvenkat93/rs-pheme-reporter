@@ -10,6 +10,7 @@ from sqlalchemy import (
     BigInteger,
     DateTime,
     ForeignKey,
+    Identity,
     Integer,
     MetaData,
     String,
@@ -157,6 +158,8 @@ class ParserProfile(Base):
 class Message(Base):
     __tablename__ = "messages"
     id: Mapped[uuid.UUID] = _pk()
+    # Insertion order. created_at is the transaction time, so it ties within one request.
+    seq: Mapped[int] = mapped_column(BigInteger, Identity(always=True), index=True)
     workspace_id: Mapped[uuid.UUID] = _ws()
     session_id: Mapped[uuid.UUID] = mapped_column(
         ForeignKey("sessions.id", ondelete="CASCADE"), index=True

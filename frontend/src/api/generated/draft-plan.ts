@@ -5,6 +5,18 @@
  * and run json-schema-to-typescript to regenerate this file.
  */
 
+export type After = {
+  [k: string]: JsonValue;
+} | null;
+/**
+ * This interface was referenced by `DraftPlan`'s JSON-Schema
+ * via the `definition` "JsonValue".
+ */
+export type JsonValue = unknown;
+export type Before = {
+  [k: string]: JsonValue;
+} | null;
+export type Candidates = string[];
 /**
  * This interface was referenced by `DraftPlan`'s JSON-Schema
  * via the `definition` "DecisionChoice".
@@ -166,6 +178,9 @@ export interface DraftPlan {
  * via the `definition` "Decision".
  */
 export interface Decision {
+  after?: After;
+  before?: Before;
+  candidates?: Candidates;
   choice?: DecisionChoice | null;
   choice_detail?: ChoiceDetail;
   decided_at?: DecidedAt;

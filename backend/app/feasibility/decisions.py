@@ -32,11 +32,15 @@ def decision_for(verdict: Verdict, item: str, buildable_as_asked: bool) -> Decis
     """One decision per adjusted, not_feasible or needs_clarification verdict; None if feasible."""
     if verdict.kind == VerdictKind.FEASIBLE:
         return None
+    change = verdict.applied_change
     return Decision(
         id=f"D_{item}"[:64],
         item=item,
         reason=" ".join(verdict.reasons),
         options=options_for(verdict, buildable_as_asked),
+        candidates=list(verdict.candidates),
+        before=change.before if change else None,
+        after=change.after if change else None,
     )
 
 

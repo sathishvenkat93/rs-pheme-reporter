@@ -284,7 +284,7 @@ class Agent:
     def _llm_history(self) -> list[Block]:
         rows = self.db.scalars(
             select(Message).where(Message.session_id == self.session.id, Message.role.in_(["llm_user", "llm_assistant", "llm_tool"]))
-            .order_by(Message.created_at, Message.id)
+            .order_by(Message.seq)
         ).all()  # fmt: skip
         return [r.content for r in rows]
 
@@ -439,6 +439,36 @@ class Agent:
             return None
         q = res.option.query.model_copy(update={"top_n": request.top_n, "limit": None})
         return res.option.model_copy(update={"chart_type": chart, "query": q})
+
+    def toggle_option(self, option_id: str, included: bool) -> list[str]:
+        if self.state not in (State.PROPOSE, State.REFINE, State.APPROVED):
+            raise AgentError("Charts can only be switched on or off while planning.")
+        if self.state == State.PROPOSE:
+            self.transition(State.REFINE)
+        old = self.plan()
+        option = next((o for o in old.options if o.id == option_id), None)
+        if option is None:
+            raise AgentError(f"There's no chart {option_id!r} in the plan.")
+        status = (
+            (
+                OptionStatus.REQUESTED
+                if option.status in (OptionStatus.OPTIONAL, OptionStatus.EXCLUDED)
+                else option.status
+            )
+            if included
+            else OptionStatus.EXCLUDED
+        )
+        new = old.model_copy(
+            update={
+                "options": [
+                    o.model_copy(update={"status": status}) if o.id == option_id else o
+                    for o in old.options
+                ]
+            }
+        )
+        changes = self.save_plan(new, old=old)
+        self.commit()
+        return changes
 
     # ------------------------------------------------------------------ plan ops
     def apply_ops(self, ops: list[PlanOp]) -> list[str]:

@@ -10,7 +10,7 @@ export function AppLayout() {
         <span className="font-semibold tracking-tight">Pheme</span>
         <nav aria-label="Main" className="flex gap-2">
           <NavLink to="/" end className={linkClass}>
-            Workspace
+            New session
           </NavLink>
           <NavLink to="/library" className={linkClass}>
             Library

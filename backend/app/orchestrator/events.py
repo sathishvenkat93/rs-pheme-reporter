@@ -42,8 +42,11 @@ def read(
 
 
 def sse(session_id: UUID, after: str, *, follow: bool, block_ms: int = 15000) -> Iterator[str]:
-    """SSE frames. With ``follow`` it keeps waiting (heartbeats every ``block_ms``)."""
-    last = after
+    """SSE frames. With ``follow`` it keeps waiting (heartbeats every ``block_ms``).
+
+    ``after="$"`` starts from the newest event (only what happens from now on).
+    """
+    last = latest_id(session_id) if after == "$" else after
     while True:
         batch = read(session_id, last, block_ms=block_ms if follow else None)
         for eid, kind, data in batch:
@@ -53,3 +56,8 @@ def sse(session_id: UUID, after: str, *, follow: bool, block_ms: int = 15000) ->
             return
         if not batch:
             yield ": keep-alive\n\n"
+
+
+def latest_id(session_id: UUID) -> str:
+    res: Any = get_redis().xrevrange(_key(session_id), count=1)
+    return res[0][0].decode() if res else "0-0"

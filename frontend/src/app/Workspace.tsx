@@ -1,12 +1,36 @@
+import { useParams } from "react-router";
 import { ChatPane } from "../features/chat/ChatPane";
-import { CanvasPane } from "../features/dashboard/CanvasPane";
+import { DashboardView } from "../features/dashboard/DashboardView";
+import { ProposalPane } from "../features/proposal/ProposalPane";
+import { SessionProvider, useSession } from "../features/session/SessionContext";
 
-/** Two-pane shell: chat on the left, canvas on the right. */
-export function Workspace() {
+function Panes({ version }: { version?: number }) {
+  const { session } = useSession();
   return (
-    <div className="grid h-full grid-cols-[minmax(320px,420px)_1fr]">
+    <div className="grid h-full min-h-0 grid-cols-[minmax(300px,380px)_1fr] xl:grid-cols-[minmax(320px,420px)_1fr]">
       <ChatPane />
-      <CanvasPane />
+      <section aria-label="Canvas" className="min-h-0 overflow-hidden">
+        {session?.dashboard_id ? <DashboardView dashboardId={session.dashboard_id} version={version} /> : <ProposalPane />}
+      </section>
     </div>
+  );
+}
+
+/** Two-pane workspace for a session: chat on the left, proposal or dashboard on the right. */
+export function Workspace() {
+  const { sid } = useParams();
+  if (!sid) return null;
+  return (
+    <SessionProvider sessionId={sid} key={sid}>
+      <Panes />
+    </SessionProvider>
+  );
+}
+
+export function SessionPanes({ sessionId, version }: { sessionId: string; version?: number }) {
+  return (
+    <SessionProvider sessionId={sessionId} key={sessionId}>
+      <Panes version={version} />
+    </SessionProvider>
   );
 }

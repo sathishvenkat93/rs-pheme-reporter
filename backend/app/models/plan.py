@@ -7,7 +7,7 @@ from enum import StrEnum
 from typing import Annotated, Literal, Self
 from uuid import UUID
 
-from pydantic import Field, model_validator
+from pydantic import Field, JsonValue, model_validator
 
 from app.models.chart import ChartRequest, VisualOption
 from app.models.common import FieldName, Identifier, StrictModel
@@ -104,6 +104,11 @@ class Decision(StrictModel):
     options: list[DecisionChoice] = Field(min_length=1)
     choice: DecisionChoice | None = None
     choice_detail: str | None = None
+    candidates: list[str] = Field(
+        default_factory=list
+    )  # for needs_clarification: what the user can pick
+    before: dict[str, JsonValue] | None = None  # for adjusted: what was asked
+    after: dict[str, JsonValue] | None = None  # for adjusted: what Pheme changed it to
     decided_by: UUID | None = None
     decided_at: datetime | None = None
 

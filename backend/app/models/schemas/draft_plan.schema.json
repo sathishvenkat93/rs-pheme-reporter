@@ -199,6 +199,43 @@
     "Decision": {
       "additionalProperties": false,
       "properties": {
+        "after": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/JsonValue"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "After"
+        },
+        "before": {
+          "anyOf": [
+            {
+              "additionalProperties": {
+                "$ref": "#/$defs/JsonValue"
+              },
+              "type": "object"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Before"
+        },
+        "candidates": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Candidates",
+          "type": "array"
+        },
         "choice": {
           "anyOf": [
             {
@@ -566,6 +603,7 @@
       "title": "InFilter",
       "type": "object"
     },
+    "JsonValue": {},
     "LastNFilter": {
       "additionalProperties": false,
       "description": "Keep the last ``n`` distinct values of an ordinal field, e.g. the last 7 builds.",

@@ -3,16 +3,18 @@
 from __future__ import annotations
 
 from datetime import UTC, datetime
-from typing import Annotated
+from typing import Annotated, Any
 from uuid import UUID, uuid4
 
 from fastapi import APIRouter, Header, HTTPException, Query, status
 from fastapi.responses import StreamingResponse
 from pydantic import BaseModel, Field
+from sqlalchemy import select
 
 from app.api.deps import DB, Caller, Model
 from app.core.security import Redactor
 from app.dashboards.store import EditError, StaleVersion
+from app.db.tables import Message
 from app.ingestion.context import ContextFacts, extract
 from app.orchestrator import events, plans
 from app.orchestrator.agent import Agent, AgentError
@@ -31,6 +33,18 @@ class SessionOut(BaseModel):
     state: str
     plan_id: UUID | None = None
     dashboard_id: UUID | None = None
+    dataset_ids: list[UUID] = Field(default_factory=list)
+    pending_edit: dict[str, Any] | None = None
+
+
+class ChatMessage(BaseModel):
+    role: str  # "user" | "assistant"
+    text: str
+    created_at: datetime
+
+
+class ToggleIn(BaseModel):
+    included: bool
 
 
 class MessageIn(BaseModel):
@@ -65,8 +79,14 @@ def _agent(db: DB, caller: Caller, llm: Model, session_id: UUID) -> Agent:
 
 def _out(a: Agent) -> SessionOut:
     row = a.plan_row()
-    return SessionOut(id=a.session.id, state=a.state.value, plan_id=row.id if row else None,
-                      dashboard_id=a.session.dashboard_id)  # fmt: skip
+    return SessionOut(
+        id=a.session.id,
+        state=a.state.value,
+        plan_id=row.id if row else None,
+        dashboard_id=a.session.dashboard_id,
+        dataset_ids=[d.id for d, _ in a.datasets()],
+        pending_edit=a.session.pending_edit,
+    )
 
 
 @router.post("", status_code=status.HTTP_201_CREATED, response_model=SessionOut)
@@ -98,6 +118,34 @@ def post_message(
     return MessageOut(reply=reply, state=a.state.value)
 
 
+@router.get("/{session_id}/messages", response_model=list[ChatMessage])
+def list_messages(session_id: UUID, db: DB, caller: Caller, llm: Model) -> list[ChatMessage]:
+    """The visible conversation (user and assistant turns), oldest first."""
+    a = _agent(db, caller, llm, session_id)
+    rows = db.scalars(
+        select(Message)
+        .where(Message.session_id == a.session.id, Message.role.in_(["user", "assistant"]))
+        .order_by(Message.seq)
+    ).all()
+    return [
+        ChatMessage(role=r.role, text=str(r.content.get("text", "")), created_at=r.created_at)
+        for r in rows
+    ]
+
+
+@router.post("/{session_id}/options/{option_id}", response_model=SessionOut)
+def toggle_option(
+    session_id: UUID, option_id: str, body: ToggleIn, db: DB, caller: Caller, llm: Model
+) -> SessionOut:
+    """Include or exclude one proposed chart (the card toggle)."""
+    a = _agent(db, caller, llm, session_id)
+    try:
+        a.toggle_option(option_id, body.included)
+    except AgentError as exc:
+        raise HTTPException(status.HTTP_409_CONFLICT, str(exc)) from None
+    return _out(a)
+
+
 @router.get("/{session_id}/events")
 def stream_events(
     session_id: UUID,
@@ -106,7 +154,7 @@ def stream_events(
     llm: Model,
     follow: Annotated[bool, Query()] = True,
     last_event_id: Annotated[str | None, Header()] = None,
-    after: Annotated[str | None, Query(pattern=r"^\d+-\d+$")] = None,
+    after: Annotated[str | None, Query(pattern=r"^(\d+-\d+|\$)$")] = None,
 ) -> StreamingResponse:
     """SSE: assistant text, tool progress, options, plan diffs, approval cards, state changes.
 

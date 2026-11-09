@@ -25,7 +25,7 @@ Status of the build plan in [PHEME_IMPLEMENTATION.md](../PHEME_IMPLEMENTATION.md
 
 ## Phase 4 — User interface
 
-- [ ] M10 UI chat & proposals
+- [x] M10 UI chat & proposals
 - [ ] M11 UI dashboard & library
 - [ ] Gate passed
 

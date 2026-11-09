@@ -22,3 +22,7 @@ coverage/
 # Local data
 /tmp/
 backend/eval/reports/*.tmp
+
+# Playwright
+frontend/test-results/
+frontend/playwright-report/

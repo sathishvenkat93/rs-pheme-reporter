@@ -38,8 +38,8 @@ test-slow: deps-up ## Slow backend tests (e.g. the 200 MB ingest)
 fmt: ## Auto-format and auto-fix
 	cd backend && uv run ruff check --fix . && uv run ruff format .
 
-e2e: ## Playwright end-to-end tests
-	@echo "make e2e: placeholder until Phase 4 (M10)"
+e2e: deps-up ## Playwright end-to-end tests (isolated DB, offline FakeLLM)
+	./scripts/e2e.sh
 
 SCHEMAS := backend/app/models/schemas
 GENERATED := frontend/src/api/generated
@@ -49,6 +49,8 @@ types: ## Regenerate frontend types from the spec and plan JSON Schemas
 	mkdir -p $(GENERATED)
 	cd frontend && pnpm exec json2ts -i ../$(SCHEMAS)/dashboard_spec.schema.json -o src/api/generated/dashboard-spec.ts --unreachableDefinitions --additionalProperties false
 	cd frontend && pnpm exec json2ts -i ../$(SCHEMAS)/draft_plan.schema.json -o src/api/generated/draft-plan.ts --unreachableDefinitions --additionalProperties false
+	cd backend && uv run python -c "import json; from app.main import app; print(json.dumps(app.openapi(), sort_keys=True))" > ../frontend/src/api/generated/openapi.json
+	cd frontend && pnpm exec openapi-typescript src/api/generated/openapi.json -o src/api/generated/openapi.ts
 
 eval: ## Run the evaluation harness
 	@echo "make eval: placeholder until Phase 5 (M14)"
