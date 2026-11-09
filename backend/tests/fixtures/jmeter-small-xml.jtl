@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testResults version="1.2">
+  <httpSample t="204" lt="142" ts="1791208800000" s="true" lb="GET /static/app.js" rc="200" rm="OK" tn="Load 1-1" by="19200" ng="1" na="1"/>
+  <httpSample t="284" lt="198" ts="1791208800300" s="true" lb="GET /login" rc="200" rm="OK" tn="Load 1-1" by="41084" ng="1" na="1"/>
+  <httpSample t="60" lt="42" ts="1791208800600" s="true" lb="GET /" rc="200" rm="OK" tn="Load 1-1" by="10952" ng="1" na="1"/>
+  <httpSample t="58" lt="40" ts="1791208800900" s="false" lb="GET /" rc="500" rm="Server Error" tn="Load 1-1" by="49117" ng="1" na="1"/>
+  <httpSample t="69" lt="48" ts="1791208801200" s="true" lb="GET /login" rc="200" rm="OK" tn="Load 1-1" by="2793" ng="1" na="1"/>
+  <httpSample t="136" lt="95" ts="1791208801500" s="true" lb="POST /api/orders" rc="200" rm="OK" tn="Load 1-1" by="13912" ng="1" na="1"/>
+  <httpSample t="58" lt="40" ts="1791208801800" s="true" lb="GET /" rc="200" rm="OK" tn="Load 1-1" by="30334" ng="1" na="1"/>
+  <httpSample t="123" lt="86" ts="1791208802100" s="true" lb="POST /api/orders" rc="200" rm="OK" tn="Load 1-1" by="48435" ng="1" na="1"/>
+  <httpSample t="89" lt="62" ts="1791208802400" s="true" lb="GET /api/users" rc="200" rm="OK" tn="Load 1-1" by="27528" ng="1" na="1"/>
+  <httpSample t="85" lt="59" ts="1791208802700" s="true" lb="GET /" rc="200" rm="OK" tn="Load 1-1" by="18904" ng="1" na="1"/>
+  <httpSample t="254" lt="177" ts="1791208803000" s="true" lb="GET /static/app.js" rc="200" rm="OK" tn="Load 1-1" by="12825" ng="1" na="1"/>
+  <httpSample t="147" lt="102" ts="1791208803300" s="true" lb="GET /static/app.js" rc="200" rm="OK" tn="Load 1-1" by="37130" ng="1" na="1"/>
+  <httpSample t="410" lt="287" ts="1791208803600" s="true" lb="GET /api/users" rc="200" rm="OK" tn="Load 1-1" by="6294" ng="1" na="1"/>
+  <httpSample t="260" lt="182" ts="1791208803900" s="false" lb="GET /api/orders/{id}" rc="500" rm="Server Error" tn="Load 1-1" by="43662" ng="1" na="1"/>
+  <httpSample t="104" lt="72" ts="1791208804200" s="true" lb="POST /login" rc="200" rm="OK" tn="Load 1-1" by="38524" ng="1" na="1"/>
+  <httpSample t="268" lt="187" ts="1791208804500" s="true" lb="GET /api/orders/{id}" rc="200" rm="OK" tn="Load 1-1" by="44583" ng="1" na="1"/>
+  <httpSample t="259" lt="181" ts="1791208804800" s="true" lb="GET /search" rc="200" rm="OK" tn="Load 1-1" by="9520" ng="1" na="1"/>
+  <httpSample t="351" lt="245" ts="1791208805100" s="true" lb="GET /api/orders/{id}" rc="200" rm="OK" tn="Load 1-1" by="45086" ng="1" na="1"/>
+  <httpSample t="55" lt="38" ts="1791208805400" s="true" lb="GET /" rc="200" rm="OK" tn="Load 1-1" by="38097" ng="1" na="1"/>
+  <httpSample t="317" lt="221" ts="1791208805700" s="true" lb="GET /api/users" rc="200" rm="OK" tn="Load 1-1" by="7832" ng="1" na="1"/>
+  <httpSample t="83" lt="58" ts="1791208806000" s="true" lb="GET /" rc="200" rm="OK" tn="Load 1-1" by="36574" ng="1" na="1"/>
+  <httpSample t="420" lt="294" ts="1791208806300" s="true" lb="GET /api/users" rc="200" rm="OK" tn="Load 1-1" by="21831" ng="1" na="1"/>
+  <httpSample t="357" lt="249" ts="1791208806600" s="true" lb="GET /search" rc="200" rm="OK" tn="Load 1-1" by="23511" ng="1" na="1"/>
+  <httpSample t="61" lt="42" ts="1791208806900" s="false" lb="GET /login" rc="500" rm="Server Error" tn="Load 1-1" by="45978" ng="1" na="1"/>
+  <httpSample t="133" lt="93" ts="1791208807200" s="true" lb="GET /" rc="200" rm="OK" tn="Load 1-1" by="46043" ng="1" na="1"/>
+  <httpSample t="273" lt="191" ts="1791208807500" s="true" lb="GET /api/users" rc="200" rm="OK" tn="Load 1-1" by="42328" ng="1" na="1"/>
+  <httpSample t="134" lt="93" ts="1791208807800" s="true" lb="GET /api/users" rc="200" rm="OK" tn="Load 1-1" by="5175" ng="1" na="1"/>
+  <httpSample t="229" lt="160" ts="1791208808100" s="true" lb="POST /api/orders" rc="200" rm="OK" tn="Load 1-1" by="43857" ng="1" na="1"/>
+  <httpSample t="101" lt="70" ts="1791208808400" s="true" lb="GET /" rc="200" rm="OK" tn="Load 1-1" by="14160" ng="1" na="1"/>
+  <httpSample t="1141" lt="798" ts="1791208808700" s="true" lb="GET /search" rc="200" rm="OK" tn="Load 1-1" by="39384" ng="1" na="1"/>
+  <httpSample t="816" lt="571" ts="1791208809000" s="true" lb="GET /static/app.js" rc="200" rm="OK" tn="Load 1-1" by="17262" ng="1" na="1"/>
+  <httpSample t="821" lt="574" ts="1791208809300" s="true" lb="GET /search" rc="200" rm="OK" tn="Load 1-1" by="38977" ng="1" na="1"/>
+  <httpSample t="555" lt="388" ts="1791208809600" s="true" lb="GET /api/orders/{id}" rc="200" rm="OK" tn="Load 1-1" by="6190" ng="1" na="1"/>
+  <httpSample t="250" lt="175" ts="1791208809900" s="false" lb="POST /api/orders" rc="500" rm="Server Error" tn="Load 1-1" by="47398" ng="1" na="1"/>
+  <httpSample t="308" lt="215" ts="1791208810200" s="true" lb="GET /static/app.js" rc="200" rm="OK" tn="Load 1-1" by="31254" ng="1" na="1"/>
+  <httpSample t="134" lt="93" ts="1791208810500" s="true" lb="GET /api/orders/{id}" rc="200" rm="OK" tn="Load 1-1" by="14692" ng="1" na="1"/>
+  <httpSample t="409" lt="286" ts="1791208810800" s="true" lb="GET /search" rc="200" rm="OK" tn="Load 1-1" by="33680" ng="1" na="1"/>
+  <httpSample t="120" lt="84" ts="1791208811100" s="true" lb="GET /login" rc="200" rm="OK" tn="Load 1-1" by="25939" ng="1" na="1"/>
+  <httpSample t="62" lt="43" ts="1791208811400" s="true" lb="GET /" rc="200" rm="OK" tn="Load 1-1" by="11897" ng="1" na="1"/>
+  <httpSample t="279" lt="195" ts="1791208811700" s="true" lb="POST /api/orders" rc="200" rm="OK" tn="Load 1-1" by="5534" ng="1" na="1"/>
+  <httpSample t="355" lt="248" ts="1791208812000" s="true" lb="GET /static/app.js" rc="200" rm="OK" tn="Load 1-2" by="43352" ng="2" na="2"/>
+  <httpSample t="207" lt="144" ts="1791208812300" s="true" lb="GET /search" rc="200" rm="OK" tn="Load 1-2" by="15490" ng="2" na="2"/>
+  <httpSample t="132" lt="92" ts="1791208812600" s="true" lb="GET /login" rc="200" rm="OK" tn="Load 1-2" by="46304" ng="2" na="2"/>
+  <httpSample t="62" lt="43" ts="1791208812900" s="false" lb="GET /" rc="500" rm="Server Error" tn="Load 1-2" by="2697" ng="2" na="2"/>
+  <httpSample t="348" lt="243" ts="1791208813200" s="true" lb="GET /search" rc="200" rm="OK" tn="Load 1-2" by="17721" ng="2" na="2"/>
+  <httpSample t="126" lt="88" ts="1791208813500" s="true" lb="GET /static/app.js" rc="200" rm="OK" tn="Load 1-2" by="9512" ng="2" na="2"/>
+  <httpSample t="40" lt="28" ts="1791208813800" s="true" lb="GET /" rc="200" rm="OK" tn="Load 1-2" by="29735" ng="2" na="2"/>
+  <httpSample t="307" lt="214" ts="1791208814100" s="true" lb="GET /api/orders/{id}" rc="200" rm="OK" tn="Load 1-2" by="43508" ng="2" na="2"/>
+  <httpSample t="222" lt="155" ts="1791208814400" s="true" lb="GET /search" rc="200" rm="OK" tn="Load 1-2" by="26105" ng="2" na="2"/>
+  <httpSample t="103" lt="72" ts="1791208814700" s="true" lb="GET /api/orders/{id}" rc="200" rm="OK" tn="Load 1-2" by="1080" ng="2" na="2"/>
+</testResults>

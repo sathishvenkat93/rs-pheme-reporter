@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="regression">
+  <properties><property name="build" value="102"/></properties>
+    <testsuite name="api" tests="13" timestamp="2026-10-02T09:00:00">
+      <testcase name="test_api_login" classname="tests.api" time="1.055"/>
+      <testcase name="test_api_logout" classname="tests.api" time="0.671"/>
+      <testcase name="test_api_create_user" classname="tests.api" time="0.638"/>
+      <testcase name="test_api_delete_user" classname="tests.api" time="0.668"/>
+      <testcase name="test_api_list_users" classname="tests.api" time="1.503"/>
+      <testcase name="test_api_rate_limit" classname="tests.api" time="0.107"><failure type="NullPointerException" message="user was null">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_api_rate_limit" classname="tests.api" time="0.343"/>
+      <testcase name="test_api_pagination" classname="tests.api" time="0.377"/>
+      <testcase name="test_api_search" classname="tests.api" time="0.766"><failure type="AssertionError" message="expected 200 but got 500">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_api_export" classname="tests.api" time="0.28"/>
+      <testcase name="test_api_import" classname="tests.api" time="0.386"/>
+      <testcase name="test_api_auth_refresh" classname="tests.api" time="0.73"/>
+      <testcase name="test_api_permissions" classname="tests.api" time="1.021"/>
+    </testsuite>
+    <testsuite name="ui" tests="12" timestamp="2026-10-02T09:10:00">
+      <testcase name="test_ui_home" classname="tests.ui" time="0.515"><failure type="NullPointerException" message="user was null">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_ui_dashboard" classname="tests.ui" time="0.751"/>
+      <testcase name="test_ui_settings" classname="tests.ui" time="0.964"/>
+      <testcase name="test_ui_profile" classname="tests.ui" time="0.643"><skipped message="not on this platform"/></testcase>
+      <testcase name="test_ui_upload" classname="tests.ui" time="0.124"><failure type="AssertionError" message="expected 200 but got 500">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_ui_upload" classname="tests.ui" time="0.249"/>
+      <testcase name="test_ui_download" classname="tests.ui" time="0.525"/>
+      <testcase name="test_ui_dark_mode" classname="tests.ui" time="1.24"/>
+      <testcase name="test_ui_keyboard_nav" classname="tests.ui" time="0.796"/>
+      <testcase name="test_ui_search_box" classname="tests.ui" time="0.769"><error type="ConnectionError" message="connection refused: db:5432">Traceback (most recent call last): ...</error></testcase>
+      <testcase name="test_ui_notifications" classname="tests.ui" time="0.765"><failure type="TimeoutError" message="operation timed out after 30s">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_ui_help" classname="tests.ui" time="0.652"><failure type="AssertionError" message="expected 200 but got 500">Traceback (most recent call last): ...</failure></testcase>
+    </testsuite>
+    <testsuite name="db" tests="11" timestamp="2026-10-02T09:20:00">
+      <testcase name="test_db_migrate" classname="tests.db" time="0.831"/>
+      <testcase name="test_db_rollback" classname="tests.db" time="1.234"><failure type="AssertionError" message="expected 200 but got 500">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_db_backup" classname="tests.db" time="0.465"/>
+      <testcase name="test_db_restore" classname="tests.db" time="1.284"/>
+      <testcase name="test_db_index" classname="tests.db" time="0.335"/>
+      <testcase name="test_db_vacuum" classname="tests.db" time="0.406"/>
+      <testcase name="test_db_replication" classname="tests.db" time="0.205"/>
+      <testcase name="test_db_failover" classname="tests.db" time="0.355"/>
+      <testcase name="test_db_pool" classname="tests.db" time="1.385"/>
+      <testcase name="test_db_deadlock" classname="tests.db" time="2.843"><error type="AssertionError" message="expected 200 but got 500">Traceback (most recent call last): ...</error></testcase>
+      <testcase name="test_db_encoding" classname="tests.db" time="1.819"/>
+    </testsuite>
+</testsuites>

@@ -5,7 +5,7 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import health
+from app.api import datasets, health, sessions, uploads
 from app.core.logging import configure_logging
 
 
@@ -18,7 +18,8 @@ def create_app() -> FastAPI:
         allow_methods=["*"],
         allow_headers=["*"],
     )
-    app.include_router(health.router)
+    for router in (health.router, sessions.router, uploads.router, datasets.router):
+        app.include_router(router)
     return app
 
 

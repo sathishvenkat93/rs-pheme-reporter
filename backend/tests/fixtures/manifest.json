@@ -1,0 +1,102 @@
+{
+  "app.log": {
+    "format": "unknown",
+    "kind": null,
+    "rows": null
+  },
+  "daily-metrics.csv": {
+    "format": "csv",
+    "kind": "generic",
+    "rows": 270
+  },
+  "deployments.json": {
+    "format": "json",
+    "kind": "generic",
+    "rows": 40
+  },
+  "events.ndjson": {
+    "format": "ndjson",
+    "kind": "generic",
+    "rows": 300
+  },
+  "inventory.xlsx": {
+    "format": "xlsx",
+    "kind": "generic",
+    "rows": 25
+  },
+  "jmeter-load.jtl": {
+    "format": "jtl_csv",
+    "kind": "perf_samples",
+    "rows": 2000
+  },
+  "jmeter-small-xml.jtl": {
+    "format": "jtl_xml",
+    "kind": "perf_samples",
+    "rows": 50
+  },
+  "junit-build-101.xml": {
+    "build": "101",
+    "format": "junit_xml",
+    "kind": "test_results",
+    "rows": 36
+  },
+  "junit-build-102.xml": {
+    "build": "102",
+    "format": "junit_xml",
+    "kind": "test_results",
+    "rows": 36
+  },
+  "junit-build-103.xml": {
+    "build": "103",
+    "format": "junit_xml",
+    "kind": "test_results",
+    "rows": 35
+  },
+  "junit-build-104.xml": {
+    "build": "104",
+    "format": "junit_xml",
+    "kind": "test_results",
+    "rows": 35
+  },
+  "junit-build-105.xml": {
+    "build": "105",
+    "format": "junit_xml",
+    "kind": "test_results",
+    "rows": 35
+  },
+  "malformed-jmeter-xml.jtl": {
+    "format": "jtl_xml",
+    "kind": null,
+    "rows": null
+  },
+  "malformed-jmeter.jtl": {
+    "format": "jtl_csv",
+    "kind": null,
+    "rows": null
+  },
+  "malformed-junit.xml": {
+    "format": "junit_xml",
+    "kind": null,
+    "rows": null
+  },
+  "malformed.csv": {
+    "format": "csv",
+    "kind": null,
+    "rows": null
+  },
+  "malformed.json": {
+    "format": "json",
+    "kind": null,
+    "rows": null
+  },
+  "malformed.ndjson": {
+    "format": "ndjson",
+    "kind": null,
+    "rows": null
+  },
+  "malformed.xlsx": {
+    "format": "xlsx",
+    "kind": null,
+    "rows": null
+  }
+}

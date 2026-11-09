@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="regression">
+    <testsuite name="api" tests="12" timestamp="2026-10-04T09:00:00">
+      <testcase name="test_api_login" classname="tests.api" time="0.483"><skipped message="not on this platform"/></testcase>
+      <testcase name="test_api_logout" classname="tests.api" time="0.442"><failure type="TimeoutError" message="operation timed out after 30s">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_api_create_user" classname="tests.api" time="0.465"/>
+      <testcase name="test_api_delete_user" classname="tests.api" time="0.989"><error type="NullPointerException" message="user was null">Traceback (most recent call last): ...</error></testcase>
+      <testcase name="test_api_list_users" classname="tests.api" time="0.449"><failure type="ConnectionError" message="connection refused: db:5432">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_api_rate_limit" classname="tests.api" time="1.052"/>
+      <testcase name="test_api_pagination" classname="tests.api" time="1.654"/>
+      <testcase name="test_api_search" classname="tests.api" time="1.146"/>
+      <testcase name="test_api_export" classname="tests.api" time="0.233"/>
+      <testcase name="test_api_import" classname="tests.api" time="0.656"/>
+      <testcase name="test_api_auth_refresh" classname="tests.api" time="0.269"/>
+      <testcase name="test_api_permissions" classname="tests.api" time="0.354"/>
+    </testsuite>
+    <testsuite name="ui" tests="12" timestamp="2026-10-04T09:10:00">
+      <testcase name="test_ui_home" classname="tests.ui" time="0.182"><error type="TimeoutError" message="operation timed out after 30s">Traceback (most recent call last): ...</error></testcase>
+      <testcase name="test_ui_dashboard" classname="tests.ui" time="0.46"><failure type="NullPointerException" message="user was null">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_ui_settings" classname="tests.ui" time="1.282"><failure type="AssertionError" message="expected 200 but got 500">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_ui_profile" classname="tests.ui" time="1.092"/>
+      <testcase name="test_ui_upload" classname="tests.ui" time="1.77"><failure type="TimeoutError" message="operation timed out after 30s">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_ui_upload" classname="tests.ui" time="0.331"/>
+      <testcase name="test_ui_download" classname="tests.ui" time="1.912"/>
+      <testcase name="test_ui_dark_mode" classname="tests.ui" time="2.383"/>
+      <testcase name="test_ui_keyboard_nav" classname="tests.ui" time="0.223"/>
+      <testcase name="test_ui_search_box" classname="tests.ui" time="0.336"/>
+      <testcase name="test_ui_notifications" classname="tests.ui" time="0.552"/>
+      <testcase name="test_ui_help" classname="tests.ui" time="0.316"/>
+    </testsuite>
+    <testsuite name="db" tests="11" timestamp="2026-10-04T09:20:00">
+      <testcase name="test_db_migrate" classname="tests.db" time="0.87"/>
+      <testcase name="test_db_rollback" classname="tests.db" time="0.404"/>
+      <testcase name="test_db_backup" classname="tests.db" time="0.07"/>
+      <testcase name="test_db_restore" classname="tests.db" time="0.307"/>
+      <testcase name="test_db_index" classname="tests.db" time="1.913"><failure type="ConnectionError" message="connection refused: db:5432">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_db_vacuum" classname="tests.db" time="0.19"/>
+      <testcase name="test_db_replication" classname="tests.db" time="0.235"/>
+      <testcase name="test_db_failover" classname="tests.db" time="1.72"/>
+      <testcase name="test_db_pool" classname="tests.db" time="1.224"><failure type="AssertionError" message="expected 200 but got 500">Traceback (most recent call last): ...</failure></testcase>
+      <testcase name="test_db_deadlock" classname="tests.db" time="0.256"/>
+      <testcase name="test_db_encoding" classname="tests.db" time="1.547"/>
+    </testsuite>
+</testsuites>

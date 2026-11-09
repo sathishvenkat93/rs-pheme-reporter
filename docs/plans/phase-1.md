@@ -109,3 +109,7 @@ Risks:
 - **M1** — Ruff's E501 is disabled; `ruff format` governs line length.
 - **M2** — Models use Pydantic's lax type mode, not `strict=True`. FastAPI validates bodies in Python mode, where strict mode rejects UUID/datetime/enum strings. Unknown keys are still forbidden and all invariants are validators.
 - **M2** — `DatasetBinding` gained `dataset_id` (R2 had no way to name the actual dataset). The R2 test example includes it.
+- **M3** — Large CSV/TSV/JTL-CSV/NDJSON files are read in 2 MiB line chunks (schema fixed by the first chunk, quoted newlines kept intact) and each chunk is parsed with Polars, rather than with `scan_csv` + `sink_parquet`. Measured on macOS: Polars' own lazy sink grew peak RSS by ~540 MiB for a 200 MB file and kept growing with input size (~740 MiB at 400 MB); PyArrow's streaming reader also grew. Chunked reads stay flat (≈ +144 MiB at 50 MB, +167 MiB at 200 MB).
+- **M3** — The slow memory test measures marginal growth (50 MB vs 200 MB file) plus "peak growth < file size", not "< half the file size". About 130 MiB of the growth is fixed engine/allocator overhead that doesn't depend on the file.
+- **M3** — JSON documents and .xlsx workbooks are still loaded fully (their formats can't be streamed simply); the 200 MB guarantee covers the line-based formats.
+- **M3** — `GET /datasets/{id}` added (not in the plan) so tests and later milestones can read versions without touching the database.

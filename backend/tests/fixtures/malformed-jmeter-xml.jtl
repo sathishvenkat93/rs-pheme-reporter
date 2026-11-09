@@ -1,0 +1,4 @@
+<?xml version="1.0"?>
+<testResults version="1.2">
+  <httpSample t="12" ts="1730815200000" s="true" lb="GET /"/>
+  <httpSample t="1
