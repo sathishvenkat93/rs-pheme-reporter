@@ -780,6 +780,17 @@
           "title": "Measures",
           "type": "array"
         },
+        "options": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/WidgetOptions"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
         "query": {
           "$ref": "#/$defs/SemanticQuery"
         },
@@ -829,6 +840,92 @@
         "status"
       ],
       "title": "VisualOption",
+      "type": "object"
+    },
+    "WidgetOptions": {
+      "additionalProperties": false,
+      "properties": {
+        "bins": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "maximum": 500,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Bins"
+        },
+        "horizontal": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Horizontal"
+        },
+        "log_scale": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Log Scale"
+        },
+        "show_other": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Show Other"
+        },
+        "sparkline": {
+          "anyOf": [
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Sparkline"
+        },
+        "stack": {
+          "anyOf": [
+            {
+              "enum": [
+                "none",
+                "stacked",
+                "percent"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Stack"
+        }
+      },
+      "title": "WidgetOptions",
       "type": "object"
     },
     "WidgetType": {

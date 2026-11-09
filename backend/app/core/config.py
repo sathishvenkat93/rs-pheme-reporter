@@ -46,6 +46,19 @@ class Settings(BaseSettings):
     query_row_cap: int = Field(default=10_000, gt=0)
     query_cache_ttl_s: int = Field(default=86_400, gt=0)
 
+    # R4 scoring weights; redundancy and clutter are multipliers on their penalties.
+    recommend_weights: dict[str, float] = Field(
+        default_factory=lambda: {
+            "data_fit": 0.30,
+            "intent": 0.25,
+            "insight": 0.20,
+            "perception": 0.15,
+            "domain_prior": 0.10,
+            "redundancy": 1.0,
+            "clutter": 1.0,
+        }
+    )
+
     anthropic_api_key: str = ""
     model_main: str = "claude-sonnet-5-5"
     model_fast: str = "claude-haiku-5-5"

@@ -52,6 +52,17 @@ FLAKY_KEY = ("build", "suite", "case")
 OTHER = "Other"
 
 
+def top_n_dimension(
+    dims: list[str], columns: dict[str, ColumnType], grain: TimeGrain | None
+) -> str:
+    """The dimension top N applies to: the first one that isn't the time axis."""
+    for d in dims:
+        is_axis = columns.get(d) in TIME_TYPES or (d == "build" and grain is TimeGrain.BUILD)
+        if not is_axis:
+            return d
+    return dims[0]
+
+
 class QueryError(ValueError):
     """A query Pheme can't run. The message is meant for users."""
 
@@ -215,7 +226,7 @@ def compile_query(
     dims = list(query.dimensions)
     dim_sql = {d: b.dim(d) for d in dims}
     if query.top_n is not None:
-        target = next((d for d in dims if columns[d] not in TIME_TYPES), dims[0])
+        target = top_n_dimension(dims, columns, query.time_grain)
         rank = measure_sql[query.measures[0]] if query.measures else "count(*)"
         tv = f"CAST({dim_sql[target]} AS VARCHAR)"
         ctes.append(

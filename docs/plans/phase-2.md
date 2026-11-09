@@ -82,3 +82,8 @@ Tests: table-driven over every R5 row; the can_build flip; every reason < 25 wor
 - **M5** — The executor refuses anything but exactly one SELECT (`extract_statements`). A raw DuckDB connection runs stacked statements (`SELECT 1; DROP VIEW data`), so this guards against compiler bugs; the compiler itself only emits one SELECT.
 - **M5** — NULL values of a top-N dimension fold into "Other".
 - **M5** — Added `pytz` (DuckDB needs it to return timezone-aware timestamps).
+- **M6** — `VisualOption` gained `options: WidgetOptions | None` (bins, stacking, horizontal bars) so they carry through to widgets; schemas regenerated.
+- **M6** — Redundancy is a cumulative MMR penalty: 0.25 × min(1, Σ similarity) to the charts already chosen. Similarity is 1.0 for the same chart, 0.7 for overlapping measures on the same dims, 0.4 for a shared measure under another breakdown, 0.3 between KPI tiles and 0.1 for another measure on the same axis. KPI ties break by pack order (packs list KPIs by priority). Box plots and scatters use the profile's facts only; nothing is queried at recommend time.
+- **M6** — Scatter above 10k rows is sampled to 5,000 points via the query limit (binned scatter isn't a widget type). Histograms query value counts for the renderer to bin.
+- **M6** — The top-N dimension is chosen by one shared helper (`compiler.top_n_dimension`): the first dimension that isn't the time axis, counting `build` with the build grain as a time axis. The property test found the compiler and the guard disagreeing on this.
+- **M6** — Requests are resolved by exact column or measure names in M6; M7's resolver plugs in through `RequestResolver`.

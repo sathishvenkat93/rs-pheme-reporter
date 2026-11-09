@@ -60,6 +60,12 @@ export type Y = string | null;
 export type Fields = string[];
 export type Id4 = string;
 export type Measures1 = Measure[];
+export type Bins = number | null;
+export type Horizontal = boolean | null;
+export type LogScale = boolean | null;
+export type ShowOther = boolean | null;
+export type Sparkline = boolean | null;
+export type Stack = ("none" | "stacked" | "percent") | null;
 export type Dataset1 = string;
 export type Dimensions = string[];
 export type Field1 = string;
@@ -173,6 +179,7 @@ export interface VisualOption {
   fields?: Fields;
   id: Id4;
   measures?: Measures1;
+  options?: WidgetOptions | null;
   query: SemanticQuery;
   rationale?: Rationale;
   request_id?: RequestId;
@@ -191,6 +198,18 @@ export interface Encoding {
   value?: Value;
   x?: X;
   y?: Y;
+}
+/**
+ * This interface was referenced by `DraftPlan`'s JSON-Schema
+ * via the `definition` "WidgetOptions".
+ */
+export interface WidgetOptions {
+  bins?: Bins;
+  horizontal?: Horizontal;
+  log_scale?: LogScale;
+  show_other?: ShowOther;
+  sparkline?: Sparkline;
+  stack?: Stack;
 }
 /**
  * What to compute. ``measures`` are ids resolved against a measure catalog.

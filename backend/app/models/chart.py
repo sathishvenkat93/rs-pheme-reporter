@@ -9,7 +9,7 @@ from pydantic import Field, model_validator
 
 from app.models.common import FieldName, Identifier, StrictModel
 from app.models.query import Measure, SemanticQuery
-from app.models.spec import Encoding, WidgetType
+from app.models.spec import Encoding, WidgetOptions, WidgetType
 
 # User words for chart types that map onto MVP widget types.
 CHART_TYPE_SYNONYMS: dict[str, WidgetType] = {
@@ -106,6 +106,7 @@ class VisualOption(StrictModel):
     query: SemanticQuery
     measures: list[Measure] = Field(default_factory=list)
     encoding: Encoding = Field(default_factory=Encoding)
+    options: WidgetOptions | None = None
     rationale: str = ""
     score: ScoreBreakdown | None = None
     status: OptionStatus
