@@ -58,10 +58,20 @@ def _ensure_bucket() -> None:
         client.make_bucket(bucket)
 
 
+def _migrate() -> None:
+    from pathlib import Path
+
+    from alembic import command
+    from alembic.config import Config
+
+    command.upgrade(Config(str(Path(__file__).resolve().parents[1] / "alembic.ini")), "head")
+
+
 @pytest.fixture(scope="session", autouse=True)
 def _services() -> Iterator[None]:
     _clear_caches()
     _ensure_database()
+    _migrate()
     _ensure_bucket()
     yield
     core_db.get_engine().dispose()

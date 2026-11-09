@@ -41,8 +41,14 @@ fmt: ## Auto-format and auto-fix
 e2e: ## Playwright end-to-end tests
 	@echo "make e2e: placeholder until Phase 4 (M10)"
 
-types: ## Regenerate frontend types from JSON Schemas / OpenAPI
-	@echo "make types: placeholder until M2"
+SCHEMAS := backend/app/models/schemas
+GENERATED := frontend/src/api/generated
+
+types: ## Regenerate frontend types from the spec and plan JSON Schemas
+	cd backend && uv run python -m app.models.export_schemas
+	mkdir -p $(GENERATED)
+	cd frontend && pnpm exec json2ts -i ../$(SCHEMAS)/dashboard_spec.schema.json -o src/api/generated/dashboard-spec.ts --unreachableDefinitions --additionalProperties false
+	cd frontend && pnpm exec json2ts -i ../$(SCHEMAS)/draft_plan.schema.json -o src/api/generated/draft-plan.ts --unreachableDefinitions --additionalProperties false
 
 eval: ## Run the evaluation harness
 	@echo "make eval: placeholder until Phase 5 (M14)"

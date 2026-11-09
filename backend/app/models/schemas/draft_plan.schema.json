@@ -1,0 +1,914 @@
+{
+  "$defs": {
+    "Decision": {
+      "additionalProperties": false,
+      "properties": {
+        "choice": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/DecisionChoice"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "choice_detail": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Choice Detail"
+        },
+        "decided_at": {
+          "anyOf": [
+            {
+              "format": "date-time",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decided At"
+        },
+        "decided_by": {
+          "anyOf": [
+            {
+              "format": "uuid",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Decided By"
+        },
+        "id": {
+          "maxLength": 64,
+          "minLength": 1,
+          "title": "Id",
+          "type": "string"
+        },
+        "item": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$",
+          "title": "Item",
+          "type": "string"
+        },
+        "options": {
+          "items": {
+            "$ref": "#/$defs/DecisionChoice"
+          },
+          "minItems": 1,
+          "title": "Options",
+          "type": "array"
+        },
+        "reason": {
+          "minLength": 1,
+          "title": "Reason",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "item",
+        "reason",
+        "options"
+      ],
+      "title": "Decision",
+      "type": "object"
+    },
+    "DecisionChoice": {
+      "enum": [
+        "accept_alternative",
+        "keep_as_asked",
+        "drop",
+        "provide_data",
+        "choose_candidate"
+      ],
+      "title": "DecisionChoice",
+      "type": "string"
+    },
+    "Encoding": {
+      "additionalProperties": false,
+      "properties": {
+        "color": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Color"
+        },
+        "series": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Series"
+        },
+        "size": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Size"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Value"
+        },
+        "x": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "X"
+        },
+        "y": {
+          "anyOf": [
+            {
+              "maxLength": 128,
+              "minLength": 1,
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Y"
+        }
+      },
+      "title": "Encoding",
+      "type": "object"
+    },
+    "EqFilter": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "op": {
+          "const": "eq",
+          "default": "eq",
+          "title": "Op",
+          "type": "string"
+        },
+        "value": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            }
+          ],
+          "title": "Value"
+        }
+      },
+      "required": [
+        "field",
+        "value"
+      ],
+      "title": "EqFilter",
+      "type": "object"
+    },
+    "GlobalFilter": {
+      "additionalProperties": false,
+      "properties": {
+        "control": {
+          "enum": [
+            "multiselect",
+            "select",
+            "range",
+            "date_range"
+          ],
+          "title": "Control",
+          "type": "string"
+        },
+        "dataset": {
+          "anyOf": [
+            {
+              "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$",
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Dataset"
+        },
+        "field": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "id": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        }
+      },
+      "required": [
+        "id",
+        "field",
+        "control"
+      ],
+      "title": "GlobalFilter",
+      "type": "object"
+    },
+    "InFilter": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "op": {
+          "const": "in",
+          "default": "in",
+          "title": "Op",
+          "type": "string"
+        },
+        "values": {
+          "items": {
+            "anyOf": [
+              {
+                "type": "string"
+              },
+              {
+                "type": "integer"
+              },
+              {
+                "type": "number"
+              },
+              {
+                "type": "boolean"
+              }
+            ]
+          },
+          "minItems": 1,
+          "title": "Values",
+          "type": "array"
+        }
+      },
+      "required": [
+        "field",
+        "values"
+      ],
+      "title": "InFilter",
+      "type": "object"
+    },
+    "LastNFilter": {
+      "additionalProperties": false,
+      "description": "Keep the last ``n`` distinct values of an ordinal field, e.g. the last 7 builds.",
+      "properties": {
+        "field": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "n": {
+          "exclusiveMinimum": 0,
+          "title": "N",
+          "type": "integer"
+        },
+        "op": {
+          "const": "last_n",
+          "default": "last_n",
+          "title": "Op",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "n"
+      ],
+      "title": "LastNFilter",
+      "type": "object"
+    },
+    "Measure": {
+      "additionalProperties": false,
+      "description": "A named measure. ``expr`` must parse in the measure grammar; it is never SQL.",
+      "properties": {
+        "expr": {
+          "maxLength": 500,
+          "minLength": 1,
+          "title": "Expr",
+          "type": "string"
+        },
+        "format": {
+          "anyOf": [
+            {
+              "enum": [
+                "number",
+                "percent",
+                "duration_ms",
+                "bytes",
+                "rate"
+              ],
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Format"
+        },
+        "id": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "label": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Label"
+        }
+      },
+      "required": [
+        "id",
+        "expr"
+      ],
+      "title": "Measure",
+      "type": "object"
+    },
+    "OptionStatus": {
+      "enum": [
+        "recommended",
+        "optional",
+        "requested",
+        "needs_approval",
+        "excluded"
+      ],
+      "title": "OptionStatus",
+      "type": "string"
+    },
+    "RangeFilter": {
+      "additionalProperties": false,
+      "properties": {
+        "field": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "gte": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Gte"
+        },
+        "lte": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "integer"
+            },
+            {
+              "type": "number"
+            },
+            {
+              "type": "boolean"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Lte"
+        },
+        "op": {
+          "const": "range",
+          "default": "range",
+          "title": "Op",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "RangeFilter",
+      "type": "object"
+    },
+    "RelativeTimeFilter": {
+      "additionalProperties": false,
+      "properties": {
+        "anchor": {
+          "default": "data_max",
+          "enum": [
+            "data_max",
+            "now"
+          ],
+          "title": "Anchor",
+          "type": "string"
+        },
+        "field": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        },
+        "last": {
+          "exclusiveMinimum": 0,
+          "title": "Last",
+          "type": "integer"
+        },
+        "op": {
+          "const": "relative_time",
+          "default": "relative_time",
+          "title": "Op",
+          "type": "string"
+        },
+        "unit": {
+          "enum": [
+            "minute",
+            "hour",
+            "day",
+            "week"
+          ],
+          "title": "Unit",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field",
+        "last",
+        "unit"
+      ],
+      "title": "RelativeTimeFilter",
+      "type": "object"
+    },
+    "ScoreBreakdown": {
+      "additionalProperties": false,
+      "properties": {
+        "clutter": {
+          "minimum": 0,
+          "title": "Clutter",
+          "type": "number"
+        },
+        "data_fit": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Data Fit",
+          "type": "number"
+        },
+        "domain_prior": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Domain Prior",
+          "type": "number"
+        },
+        "facts": {
+          "items": {
+            "type": "string"
+          },
+          "title": "Facts",
+          "type": "array"
+        },
+        "insight": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Insight",
+          "type": "number"
+        },
+        "intent": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Intent",
+          "type": "number"
+        },
+        "perception": {
+          "maximum": 1,
+          "minimum": 0,
+          "title": "Perception",
+          "type": "number"
+        },
+        "redundancy": {
+          "minimum": 0,
+          "title": "Redundancy",
+          "type": "number"
+        },
+        "total": {
+          "title": "Total",
+          "type": "number"
+        }
+      },
+      "required": [
+        "data_fit",
+        "intent",
+        "insight",
+        "perception",
+        "domain_prior",
+        "redundancy",
+        "clutter",
+        "total"
+      ],
+      "title": "ScoreBreakdown",
+      "type": "object"
+    },
+    "SemanticQuery": {
+      "additionalProperties": false,
+      "description": "What to compute. ``measures`` are ids resolved against a measure catalog.",
+      "properties": {
+        "dataset": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$",
+          "title": "Dataset",
+          "type": "string"
+        },
+        "dimensions": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Dimensions",
+          "type": "array"
+        },
+        "filters": {
+          "items": {
+            "discriminator": {
+              "mapping": {
+                "eq": "#/$defs/EqFilter",
+                "in": "#/$defs/InFilter",
+                "last_n": "#/$defs/LastNFilter",
+                "range": "#/$defs/RangeFilter",
+                "relative_time": "#/$defs/RelativeTimeFilter"
+              },
+              "propertyName": "op"
+            },
+            "oneOf": [
+              {
+                "$ref": "#/$defs/EqFilter"
+              },
+              {
+                "$ref": "#/$defs/InFilter"
+              },
+              {
+                "$ref": "#/$defs/RangeFilter"
+              },
+              {
+                "$ref": "#/$defs/RelativeTimeFilter"
+              },
+              {
+                "$ref": "#/$defs/LastNFilter"
+              }
+            ]
+          },
+          "title": "Filters",
+          "type": "array"
+        },
+        "limit": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Limit"
+        },
+        "measures": {
+          "items": {
+            "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$",
+            "type": "string"
+          },
+          "title": "Measures",
+          "type": "array"
+        },
+        "sort": {
+          "items": {
+            "$ref": "#/$defs/SortKey"
+          },
+          "title": "Sort",
+          "type": "array"
+        },
+        "time_grain": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/TimeGrain"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "top_n": {
+          "anyOf": [
+            {
+              "exclusiveMinimum": 0,
+              "type": "integer"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Top N"
+        }
+      },
+      "required": [
+        "dataset"
+      ],
+      "title": "SemanticQuery",
+      "type": "object"
+    },
+    "SortKey": {
+      "additionalProperties": false,
+      "properties": {
+        "dir": {
+          "default": "asc",
+          "enum": [
+            "asc",
+            "desc"
+          ],
+          "title": "Dir",
+          "type": "string"
+        },
+        "field": {
+          "maxLength": 128,
+          "minLength": 1,
+          "title": "Field",
+          "type": "string"
+        }
+      },
+      "required": [
+        "field"
+      ],
+      "title": "SortKey",
+      "type": "object"
+    },
+    "TimeGrain": {
+      "enum": [
+        "minute",
+        "hour",
+        "day",
+        "week",
+        "build"
+      ],
+      "title": "TimeGrain",
+      "type": "string"
+    },
+    "VisualOption": {
+      "additionalProperties": false,
+      "properties": {
+        "chart_type": {
+          "$ref": "#/$defs/WidgetType"
+        },
+        "encoding": {
+          "$ref": "#/$defs/Encoding"
+        },
+        "fields": {
+          "items": {
+            "maxLength": 128,
+            "minLength": 1,
+            "type": "string"
+          },
+          "title": "Fields",
+          "type": "array"
+        },
+        "id": {
+          "pattern": "^[A-Za-z_][A-Za-z0-9_]{0,63}$",
+          "title": "Id",
+          "type": "string"
+        },
+        "measures": {
+          "items": {
+            "$ref": "#/$defs/Measure"
+          },
+          "title": "Measures",
+          "type": "array"
+        },
+        "query": {
+          "$ref": "#/$defs/SemanticQuery"
+        },
+        "rationale": {
+          "default": "",
+          "title": "Rationale",
+          "type": "string"
+        },
+        "request_id": {
+          "anyOf": [
+            {
+              "type": "string"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null,
+          "title": "Request Id"
+        },
+        "score": {
+          "anyOf": [
+            {
+              "$ref": "#/$defs/ScoreBreakdown"
+            },
+            {
+              "type": "null"
+            }
+          ],
+          "default": null
+        },
+        "status": {
+          "$ref": "#/$defs/OptionStatus"
+        },
+        "title": {
+          "maxLength": 200,
+          "minLength": 1,
+          "title": "Title",
+          "type": "string"
+        }
+      },
+      "required": [
+        "id",
+        "title",
+        "chart_type",
+        "query",
+        "status"
+      ],
+      "title": "VisualOption",
+      "type": "object"
+    },
+    "WidgetType": {
+      "enum": [
+        "kpi",
+        "line",
+        "area",
+        "bar",
+        "stacked_bar",
+        "donut",
+        "histogram",
+        "box",
+        "scatter",
+        "heatmap",
+        "pareto",
+        "table"
+      ],
+      "title": "WidgetType",
+      "type": "string"
+    }
+  },
+  "$schema": "https://json-schema.org/draft/2020-12/schema",
+  "additionalProperties": false,
+  "properties": {
+    "decisions": {
+      "items": {
+        "$ref": "#/$defs/Decision"
+      },
+      "title": "Decisions",
+      "type": "array"
+    },
+    "filters": {
+      "items": {
+        "$ref": "#/$defs/GlobalFilter"
+      },
+      "title": "Filters",
+      "type": "array"
+    },
+    "id": {
+      "format": "uuid",
+      "title": "Id",
+      "type": "string"
+    },
+    "layout_hints": {
+      "items": {
+        "type": "string"
+      },
+      "title": "Layout Hints",
+      "type": "array"
+    },
+    "measures": {
+      "items": {
+        "$ref": "#/$defs/Measure"
+      },
+      "title": "Measures",
+      "type": "array"
+    },
+    "options": {
+      "items": {
+        "$ref": "#/$defs/VisualOption"
+      },
+      "title": "Options",
+      "type": "array"
+    },
+    "session_id": {
+      "format": "uuid",
+      "title": "Session Id",
+      "type": "string"
+    },
+    "version": {
+      "minimum": 1,
+      "title": "Version",
+      "type": "integer"
+    }
+  },
+  "required": [
+    "id",
+    "session_id",
+    "version"
+  ],
+  "title": "DraftPlan",
+  "type": "object"
+}

@@ -5,7 +5,7 @@ Status of the build plan in [PHEME_IMPLEMENTATION.md](../PHEME_IMPLEMENTATION.md
 ## Phase 1 — Foundation
 
 - [x] M1 Bootstrap
-- [ ] M2 Models
+- [x] M2 Models
 - [ ] M3 Ingestion
 - [ ] Gate passed
 

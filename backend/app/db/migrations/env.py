@@ -6,12 +6,12 @@ from alembic import context
 from sqlalchemy import engine_from_config, pool
 
 from app.core.config import get_settings
+from app.db.tables import Base
 
 config = context.config
 config.set_main_option("sqlalchemy.url", get_settings().database_url)
 
-# TODO(M2): point at app.db.tables metadata for autogenerate.
-target_metadata = None
+target_metadata = Base.metadata
 
 
 def run_migrations_offline() -> None:

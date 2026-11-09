@@ -100,3 +100,12 @@ Risks:
 - `make dev` from a fresh clone: clone into a temp dir, copy `.env.example`, run `make dev`, curl `/health`.
 - Every valid fixture uploads and becomes a registered Parquet dataset: API-level parametrised test over all valid fixtures.
 - `make check` green locally and in CI: run locally; push the branch and check the run with `gh run watch`.
+
+## Deviations log (kept during the phase; summarised in the gate report)
+
+- **M1** — Object store is SeaweedFS (MinIO images unavailable; user decision). Its S3 identity config is inlined via Compose `configs` instead of a bind mount, because Colima only shares `$HOME` with its VM.
+- **M1** — CI starts `docker-compose.yml` instead of service containers (the store needs a custom `server` command).
+- **M1** — Frontend pins TypeScript 6.0: TypeScript 7 (native) has no JS API, so typescript-eslint can't use it. eslint replaces the template's default oxlint, per the plan.
+- **M1** — Ruff's E501 is disabled; `ruff format` governs line length.
+- **M2** — Models use Pydantic's lax type mode, not `strict=True`. FastAPI validates bodies in Python mode, where strict mode rejects UUID/datetime/enum strings. Unknown keys are still forbidden and all invariants are validators.
+- **M2** — `DatasetBinding` gained `dataset_id` (R2 had no way to name the actual dataset). The R2 test example includes it.
