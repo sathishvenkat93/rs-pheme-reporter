@@ -1,4 +1,5 @@
-"""One live run against the real models. Skipped unless PHEME_LIVE_LLM=1 (needs an API key).
+"""One live run against the real models on Amazon Bedrock. Skipped unless PHEME_LIVE_LLM=1
+(needs AWS credentials with Bedrock access; see PHEME_AWS_* in .env.example).
 
 Records the transcript and token usage to docs/live-runs/<date>.md.
 """
@@ -14,7 +15,7 @@ import pytest
 from fastapi.testclient import TestClient
 
 from app.api.deps import get_llm
-from app.orchestrator.llm import AnthropicLLM, LLMResponse, Request, Usage
+from app.orchestrator.llm import BedrockLLM, LLMResponse, Request, Usage
 
 from .conftest import junit_session, say
 
@@ -27,7 +28,7 @@ PRICES = {
 }  # $ per 1M tokens in/out
 
 
-class Recording(AnthropicLLM):
+class Recording(BedrockLLM):
     def __init__(self) -> None:
         super().__init__()
         self.log: list[tuple[Request, LLMResponse]] = []
@@ -50,7 +51,7 @@ def test_live_junit_session(base_client: TestClient) -> None:
     lines = [f"# Live LLM run — {dt.date.today()}", "", "## Transcript", ""]
     for req, resp in llm.log:
         total = total + resp.usage
-        p_in, p_out = PRICES.get(resp.model.split("-2")[0], (0, 0))
+        p_in, p_out = PRICES.get(resp.model.removeprefix("anthropic.").split("-2")[0], (0, 0))
         cost += resp.usage.input_tokens / 1e6 * p_in + resp.usage.output_tokens / 1e6 * p_out
         lines += [f"### {req.task} ({resp.model}, {req.state})", "", "```json",
                   json.dumps(resp.content, indent=1)[:4000], "```", ""]  # fmt: skip

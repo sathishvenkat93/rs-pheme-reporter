@@ -24,6 +24,10 @@ _TEST_ENV = {
     "PHEME_REDIS_URL": "redis://localhost:6379/15",
     "PHEME_S3_BUCKET": "pheme-test",
     "PHEME_QUEUE_NAME": "pheme-test",
+    # Hermetic LLM settings: offline by default, Bedrock model ids whatever the local .env says.
+    "PHEME_LLM": "fake",
+    "PHEME_MODEL_MAIN": "anthropic.claude-sonnet-5-5",
+    "PHEME_MODEL_FAST": "anthropic.claude-haiku-5-5",
 }
 for _key, _default in _TEST_ENV.items():
     os.environ[_key] = os.environ.get(_key.replace("PHEME_", "PHEME_TEST_", 1), _default)

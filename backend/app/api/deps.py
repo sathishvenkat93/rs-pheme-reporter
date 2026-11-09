@@ -63,7 +63,7 @@ _LLM: LLM | None = None
 
 
 def get_llm() -> LLM:
-    """The app's LLM (offline FakeLLM unless PHEME_LLM=anthropic). Tests override this dependency."""
+    """The app's LLM (offline FakeLLM unless PHEME_LLM=bedrock). Tests override this dependency."""
     global _LLM
     if _LLM is None:
         _LLM = make_llm()

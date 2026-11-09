@@ -82,10 +82,17 @@ class Settings(BaseSettings):
         }
     )
 
-    llm: str = "fake"  # "fake" (default, offline) or "anthropic"
-    anthropic_api_key: str = ""
-    model_main: str = "claude-sonnet-5-5"
-    model_fast: str = "claude-haiku-5-5"
+    # "fake" (default, offline, scripted) or "bedrock" (Claude in Amazon Bedrock).
+    llm: Literal["fake", "bedrock"] = "fake"
+    # Bedrock access. Empty values fall back to the standard AWS chain: AWS_REGION /
+    # AWS_DEFAULT_REGION, then AWS_PROFILE / env keys / instance role. With no API key
+    # (here or in AWS_BEARER_TOKEN_BEDROCK) requests are signed with SigV4.
+    aws_region: str = ""
+    aws_profile: str = ""
+    bedrock_api_key: str = ""
+    # Bedrock model ids carry the "anthropic." provider prefix.
+    model_main: str = "anthropic.claude-sonnet-5-5"
+    model_fast: str = "anthropic.claude-haiku-5-5"
     live_llm: bool = False
 
 

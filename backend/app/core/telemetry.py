@@ -21,7 +21,8 @@ from sqlalchemy import Engine, event
 
 from app.core.config import get_settings
 
-# $ per million tokens (input, output, cache read). Unknown models record tokens but no cost.
+# $ per million tokens (input, output, cache read), at Anthropic list prices; Bedrock bills
+# through AWS and may differ. Unknown models record tokens but no cost.
 PRICES: dict[str, tuple[float, float, float]] = {
     "claude-sonnet-5-5": (2.00, 10.00, 0.20),
     "claude-haiku-5-5": (0.10, 0.50, 0.01),
@@ -120,6 +121,7 @@ def span(name: str, **attributes: Any) -> Iterator[trace.Span]:
 def llm_cost(
     model: str, input_tokens: int, output_tokens: int, cache_read: int = 0
 ) -> float | None:
+    model = model.removeprefix("anthropic.")  # Bedrock ids carry a provider prefix
     price = next((p for m, p in PRICES.items() if model.startswith(m)), None)
     if price is None:
         return None

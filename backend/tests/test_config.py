@@ -10,15 +10,17 @@ from app.core.principal import current_principal
 
 def test_settings_read_prefixed_env(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setenv("PHEME_MAX_UPLOAD_BYTES", "1024")
-    monkeypatch.setenv("PHEME_MODEL_FAST", "claude-haiku-5-5")
+    monkeypatch.setenv("PHEME_MODEL_FAST", "anthropic.claude-haiku-5-5")
     s = Settings()
     assert s.max_upload_bytes == 1024
-    assert s.model_fast == "claude-haiku-5-5"
+    assert s.model_fast == "anthropic.claude-haiku-5-5"
 
 
 def test_settings_defaults_for_models() -> None:
     s = Settings(_env_file=None)
-    assert s.model_main == "claude-sonnet-5-5"
+    assert s.model_main == "anthropic.claude-sonnet-5-5"
+    assert s.model_fast == "anthropic.claude-haiku-5-5"
+    assert s.llm == "fake"
     assert s.live_llm is False
 
 

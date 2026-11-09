@@ -1,7 +1,7 @@
-"""LLM access: one protocol, the Anthropic implementation, a scripted fake and the tool loop.
+"""LLM access: one protocol, the Amazon Bedrock implementation, a scripted fake and the tool loop.
 
-Tests never call the real model: they use ``FakeLLM``. ``AnthropicLLM`` is used only when
-``PHEME_LLM=anthropic`` (or ``PHEME_LIVE_LLM=1`` in the live test).
+Tests never call the real model: they use ``FakeLLM``. ``BedrockLLM`` is used only when
+``PHEME_LLM=bedrock`` (or ``PHEME_LIVE_LLM=1`` in the live test).
 """
 
 from __future__ import annotations
@@ -98,34 +98,45 @@ class LLM(Protocol):
     def complete(self, request: Request) -> LLMResponse: ...
 
 
-# ----------------------------------------------------------------------------- Anthropic
+# ----------------------------------------------------------------------------- Bedrock
 
 
-class AnthropicLLM:
-    """Thin client over the Anthropic Python SDK (Messages API)."""
+class BedrockLLM:
+    """Claude in Amazon Bedrock, through the Anthropic SDK's Bedrock client (Messages API).
 
-    FALLBACK_BETA = "server-side-fallback-2026-07-01"
+    Server-side refusal fallbacks don't exist on Bedrock, so a refusal raises ``LLMRefusal``
+    and the agent tells the user, as it does for any declined turn.
+    """
 
-    def __init__(self) -> None:
-        import anthropic
-
+    def __init__(self, client: Any | None = None) -> None:
         s = get_settings()
-        self._anthropic = anthropic
-        # The SDK retries connection errors, 408/409/429 and 5xx with backoff.
-        self.client = anthropic.Anthropic(
-            api_key=s.anthropic_api_key or None, max_retries=3, timeout=60.0
-        )
         self.models = {"main": s.model_main, "fast": s.model_fast}
+        for role, model in self.models.items():
+            if not model.startswith("anthropic."):
+                raise ValueError(
+                    f"PHEME_MODEL_{role.upper()}={model!r} isn't a Bedrock model id; "
+                    f"use the 'anthropic.' prefix, e.g. 'anthropic.{model}'."
+                )
         self.effort = {"main": "medium", "fast": "low"}
-        self._fallbacks_ok = True
+        if client is None:
+            from anthropic import AnthropicBedrockMantle
+
+            # The SDK retries connection errors, 408/409/429 and 5xx with backoff.
+            client = AnthropicBedrockMantle(
+                aws_region=s.aws_region or None,
+                aws_profile=s.aws_profile or None,
+                api_key=s.bedrock_api_key or None,
+                max_retries=3,
+                timeout=60.0,
+            )
+        self.client = client
 
     def complete(self, request: Request) -> LLMResponse:
-        model = self.models[request.role]
         output_config: dict[str, Any] = {"effort": self.effort[request.role]}
         if request.output_schema is not None:
             output_config["format"] = {"type": "json_schema", "schema": request.output_schema}
         params: dict[str, Any] = {
-            "model": model,
+            "model": self.models[request.role],
             "max_tokens": request.max_tokens,
             "system": request.system,
             "messages": request.messages,
@@ -134,19 +145,7 @@ class AnthropicLLM:
         }
         if request.tools:
             params["tools"] = request.tools  # tool_choice stays "auto": forced choice is a 400 here
-        try:
-            if request.role == "main" and self._fallbacks_ok:
-                msg = self.client.beta.messages.create(
-                    **params, betas=[self.FALLBACK_BETA], fallbacks="default"
-                )
-            else:
-                msg = self.client.messages.create(**params)
-        except self._anthropic.BadRequestError as exc:
-            if request.role == "main" and self._fallbacks_ok and "fallback" in str(exc).lower():
-                log.warning("server-side fallbacks rejected; continuing without them: %s", exc)
-                self._fallbacks_ok = False
-                return self.complete(request)
-            raise
+        msg = self.client.messages.create(**params)
         if msg.stop_reason == "refusal":
             details = getattr(msg, "stop_details", None)
             raise LLMRefusal(
@@ -283,8 +282,8 @@ def traced(llm: LLM, request: Request) -> LLMResponse:
 def make_llm() -> LLM:
     """The app's LLM: FakeLLM unless a real one is explicitly configured."""
     s = get_settings()
-    if s.llm == "anthropic" or s.live_llm:
-        return AnthropicLLM()
+    if s.llm == "bedrock" or s.live_llm:
+        return BedrockLLM()
     from app.orchestrator.offline import offline_llm
 
     return offline_llm()
