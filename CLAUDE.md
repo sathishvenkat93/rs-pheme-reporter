@@ -20,10 +20,10 @@ The build plan is PHEME_IMPLEMENTATION.md; current status is in docs/progress.md
 
 **Stack**
 
-- Backend: Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2 + Alembic, PostgreSQL, Redis + RQ, an S3-compatible object store (SeaweedFS locally; MinIO's images are no longer published), DuckDB + Parquet, Polars (+ fastexcel for .xlsx), lxml, rapidfuzz, Anthropic Python SDK. Package manager: uv.
+- Backend: Python 3.12, FastAPI, Pydantic v2, SQLAlchemy 2 + Alembic, PostgreSQL, Redis + RQ, an S3-compatible object store (SeaweedFS locally; MinIO's images are no longer published), DuckDB + Parquet, Polars (+ fastexcel for .xlsx), lxml, rapidfuzz, Anthropic Python SDK (`anthropic[bedrock]`; models served by Amazon Bedrock). Package manager: uv.
 - Frontend: Vite + React + TypeScript, TanStack Query, react-grid-layout, Apache ECharts, Tailwind. Package manager: pnpm.
 - Quality: pytest (+ hypothesis), Vitest, Playwright, ruff, mypy (strict for `backend/app/models` and `backend/app/core`), eslint, tsc.
-- Models come from env vars: `PHEME_MODEL_MAIN` (default `claude-sonnet-5-5`) for orchestration and curation, and `PHEME_MODEL_FAST` (default `claude-haiku-5-5`) for intent parsing and classification.
+- Models come from env vars and run on Amazon Bedrock (`PHEME_LLM=bedrock`, AWS credentials from the standard chain or `PHEME_AWS_*`): `PHEME_MODEL_MAIN` (default `anthropic.claude-sonnet-5-5`) for orchestration and curation, and `PHEME_MODEL_FAST` (default `anthropic.claude-haiku-5-5`) for intent parsing and classification.
 
 **Layout**
 
