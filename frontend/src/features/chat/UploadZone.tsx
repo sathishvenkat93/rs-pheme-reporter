@@ -31,7 +31,10 @@ export function UploadZone({ datasetId: fixedDataset, onDone }: { datasetId?: st
         const created = await uploadFile(file, fields, (p) => set(i, { progress: p }));
         set(i, { status: "processing", progress: 1 });
         const done = await waitForUpload(created.id);
-        if (done.status === "failed") set(i, { status: "failed", error: done.error ?? "The file couldn't be read." });
+        if (done.status === "failed") {
+          set(i, { status: "failed", error: done.error ?? "The file couldn't be read." });
+          onDone?.(done.id); // e.g. refresh proposes a field mapping for files that didn't fit
+        }
         else {
           set(i, { status: "done" });
           datasetId = datasetId ?? done.dataset_ids[0];

@@ -7,6 +7,8 @@ from collections.abc import Iterator
 from typing import Any
 from uuid import UUID
 
+from redis.exceptions import TimeoutError as RedisTimeoutError
+
 from app.core.redis import get_redis
 
 MAXLEN = 5000  # events kept per session
@@ -41,14 +43,18 @@ def read(
     return out
 
 
-def sse(session_id: UUID, after: str, *, follow: bool, block_ms: int = 15000) -> Iterator[str]:
+def sse(session_id: UUID, after: str, *, follow: bool, block_ms: int = 4000) -> Iterator[str]:
     """SSE frames. With ``follow`` it keeps waiting (heartbeats every ``block_ms``).
 
     ``after="$"`` starts from the newest event (only what happens from now on).
     """
     last = latest_id(session_id) if after == "$" else after
     while True:
-        batch = read(session_id, last, block_ms=block_ms if follow else None)
+        try:
+            # block_ms stays under redis-py's default 5 s socket timeout
+            batch = read(session_id, last, block_ms=block_ms if follow else None)
+        except RedisTimeoutError:
+            batch = []
         for eid, kind, data in batch:
             last = eid
             yield f"id: {eid}\nevent: {kind}\ndata: {json.dumps(data, default=str)}\n\n"

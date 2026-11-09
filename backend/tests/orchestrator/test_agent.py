@@ -183,3 +183,13 @@ def test_option_toggle_and_message_history(api: TestClient) -> None:
     history = api.get(f"/sessions/{sid}/messages").json()
     assert [m["role"] for m in history] == ["user", "assistant"]
     assert history[0]["text"] == "Add a bar chart of failures by suite"
+
+
+def test_followed_event_stream_survives_quiet_periods(api: TestClient) -> None:
+    """A followed stream must outlive redis-py's 5 s socket timeout (heartbeats, no errors)."""
+    from app.orchestrator import events
+
+    sid = junit_session(api)["id"]
+    stream = events.sse(__import__("uuid").UUID(sid), "$", follow=True, block_ms=300)
+    frames = [next(stream) for _ in range(3)]
+    assert frames == [": keep-alive\n\n"] * 3

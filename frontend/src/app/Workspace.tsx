@@ -9,7 +9,7 @@ function Panes({ version }: { version?: number }) {
   return (
     <div className="grid h-full min-h-0 grid-cols-[minmax(300px,380px)_1fr] xl:grid-cols-[minmax(320px,420px)_1fr]">
       <ChatPane />
-      <section aria-label="Canvas" className="min-h-0 overflow-hidden">
+      <section aria-label="Canvas" className="min-h-0 min-w-0 overflow-hidden">
         {session?.dashboard_id ? <DashboardView dashboardId={session.dashboard_id} version={version} /> : <ProposalPane />}
       </section>
     </div>

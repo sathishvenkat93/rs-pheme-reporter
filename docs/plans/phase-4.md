@@ -81,3 +81,9 @@ These double as the "by hand" checks, and they run headless.
 - **M10** — Assistant replies are taken from the `POST /messages` response; SSE supplies progress, deltas, diffs, cards and invalidations.
 - **M10** — Chrome 158 returns a Promise from `scrollIntoView`; an effect that returned it crashed React ("destroy is not a function"). Fixed, and routes now have an error boundary.
 - **M10** — Proposal thumbnails use a compact chart variant (no axis labels or legends) because full axes didn't fit in a card.
+- **M11** — Bug found from the screenshot review: `useContainerWidth` measures once on mount, and the canvas first rendered a loading state, so the grid kept its 1280 px default and overflowed the pane. Fixed by mounting the grid in its own component once the spec exists, plus `min-w-0` on the canvas column.
+- **M11** — SSE bug found in the e2e logs: redis-py 8 defaults to a 5 s socket timeout, so the stream's 15 s blocking read always failed and the connection dropped. The stream now blocks 4 s and treats a timeout as a heartbeat; a test covers quiet periods.
+- **M11** — An edit left pending before a page reload shows as a short "edit waiting" card with Apply/Adjust (preview rows exist only in the live event).
+- **M11** — Global filter values come from `POST /query` (top 100 values by count); the control is single-select in the MVP.
+- **M11** — Pins are per browser (localStorage, with an in-memory fallback), not per user on the server.
+- **M11** — Playwright specs cover the M10/M11 browser "Done when" flows (proposal flow, keyboard and naming, edit/undo/library, drag and read-only versions) as well as the smoke test.
