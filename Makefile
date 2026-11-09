@@ -54,4 +54,4 @@ eval: ## Run the evaluation harness
 	@echo "make eval: placeholder until Phase 5 (M14)"
 
 demo-data: ## Print profiles, recommendations and verdicts for the fixtures
-	@echo "make demo-data: placeholder until Phase 2"
+	cd backend && uv run python ../scripts/demo_data.py

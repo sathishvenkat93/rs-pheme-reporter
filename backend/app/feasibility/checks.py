@@ -86,6 +86,11 @@ class _Working:
     buildable: bool = True
 
 
+def _a(word: str) -> str:
+    """'a' or 'an' before ``word`` (by sound for the common cases)."""
+    return "an" if word[:1].lower() in "aeio" or word.lower().startswith("hour") else "a"
+
+
 def _human(name: str) -> str:
     return name.replace("_", " ")
 
@@ -215,8 +220,8 @@ def check_request(request: ChartRequest, ctx: Context) -> CheckResult:
                 (g for g in GRAIN_SECONDS if GRAIN_SECONDS[g] >= gap * 0.99), TimeGrain.WEEK
             )
             w.changes.append(
-                f"The data is {_GRAIN_LABEL[coarser]}, so a {_GRAIN_LABEL[w.grain]} trend isn't possible. "
-                f"Showing a {_GRAIN_LABEL[coarser]} trend instead."
+                f"The data is {_GRAIN_LABEL[coarser]}, so {_a(_GRAIN_LABEL[w.grain])} {_GRAIN_LABEL[w.grain]} trend isn't possible. "
+                f"Showing {_a(_GRAIN_LABEL[coarser])} {_GRAIN_LABEL[coarser]} trend instead."
             )
             w.before["time_grain"], w.after["time_grain"] = w.grain.value, coarser.value
             w.grain = coarser
@@ -315,7 +320,7 @@ def check_request(request: ChartRequest, ctx: Context) -> CheckResult:
             WidgetType.KPI: "number tile",
         }.get(fallback, fallback.value)
         return _stop(request, VerdictKind.NOT_FEASIBLE, "renderer",
-                     f"Pheme can't draw a {request.chart_type}. A {name}{by} shows the same numbers.",
+                     f"Pheme can't draw {_a(request.chart_type)} {request.chart_type}. A {name}{by} shows the same numbers.",
                      alternatives=[_alt(request, fallback.value, phrases, f"{name.capitalize()}{by}")])  # fmt: skip
 
     # 8. Ambiguity: nothing to go on at all.
