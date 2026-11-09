@@ -114,8 +114,16 @@ def resolve_widgets(
     return [w for s, w in scored if s >= best - 0.05]
 
 
+def _require_editor(a: Agent, dash: DashboardRow) -> None:
+    try:
+        store.require(a.db, dash, a.principal.user_id, "editor")
+    except store.Forbidden as exc:
+        raise AgentError(str(exc)) from None
+
+
 def propose_edit(a: Agent, ops: list[WidgetPatchOp], note: str) -> dict[str, Any]:
     dash, cur = current(a)
+    _require_editor(a, dash)
     try:
         spec, _ = store.plan_patch(a.db, dash, cur.version, ops)
     except store.EditError as exc:
@@ -149,6 +157,7 @@ def apply_edit(a: Agent) -> store.Version:
     if not pending:
         raise AgentError("There's no edit waiting to be applied.")
     dash, _ = current(a)
+    _require_editor(a, dash)
     ops = [WidgetPatchOp.model_validate(o) for o in pending["ops"]]
     try:
         v = store.patch(a.db, dash.id, a.principal.workspace_id, base_version=pending["base_version"], ops=ops,
@@ -316,6 +325,7 @@ def _patch(a: Agent, args: PatchIn) -> Any:
 @tool("revert_dashboard", "Undo: restore an earlier version (as a new version).", RevertIn)
 def _revert(a: Agent, args: RevertIn) -> Any:
     dash, cur = current(a)
+    _require_editor(a, dash)
     target = args.version or cur.version - 1
     if target < 1:
         raise AgentError("There's no earlier version to go back to.")
@@ -329,7 +339,9 @@ def _revert(a: Agent, args: RevertIn) -> Any:
 
 @tool("list_dashboards", "Search saved dashboards by name, domain or tag.", SearchIn)
 def _list(a: Agent, args: SearchIn) -> Any:
-    stmt = select(DashboardRow).where(DashboardRow.workspace_id == a.principal.workspace_id)
+    stmt = select(DashboardRow).where(
+        DashboardRow.workspace_id == a.principal.workspace_id, DashboardRow.deleted_at.is_(None)
+    )
     if args.text:
         like = f"%{args.text}%"
         stmt = stmt.where(or_(DashboardRow.title.ilike(like), DashboardRow.domain.ilike(like)))

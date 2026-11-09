@@ -15,6 +15,7 @@ import type {
 } from "./types";
 
 export const API = "/api";
+export const UNAUTHORIZED = "pheme:unauthorized";
 
 export class ApiError extends Error {
   status: number;
@@ -30,6 +31,7 @@ async function request<T>(method: string, path: string, body?: unknown): Promise
     headers: body === undefined ? undefined : { "Content-Type": "application/json" },
     body: body === undefined ? undefined : JSON.stringify(body),
   });
+  if (res.status === 401) window.dispatchEvent(new Event(UNAUTHORIZED));
   if (!res.ok) {
     let detail = res.statusText;
     try {
@@ -55,6 +57,7 @@ export const api = {
       selected_widget_ids: selected,
     }),
   context: (id: string, text: string) => request<unknown>("POST", `/sessions/${id}/context`, { text }),
+  login: (email: string) => request<{ token: string }>("POST", "/auth/login", { email }),
   approve: (id: string) => request<{ state: string }>("POST", `/sessions/${id}/approve`),
   toggleOption: (id: string, optionId: string, included: boolean) =>
     request<Session>("POST", `/sessions/${id}/options/${encodeURIComponent(optionId)}`, { included }),
@@ -102,6 +105,7 @@ export function uploadFile(
     xhr.open("POST", `${API}/uploads`);
     xhr.upload.onprogress = (e) => e.lengthComputable && onProgress(e.loaded / e.total);
     xhr.onload = () => {
+      if (xhr.status === 401) window.dispatchEvent(new Event(UNAUTHORIZED));
       if (xhr.status >= 200 && xhr.status < 300) resolve(JSON.parse(xhr.responseText) as Upload);
       else {
         let detail = xhr.statusText;

@@ -14,7 +14,11 @@ import pytest
 # Always override (never setdefault): tests flush Redis and reset tables, so they must
 # never point at dev data. Use PHEME_TEST_* to redirect them.
 _TEST_ENV = {
-    "PHEME_DATABASE_URL": "postgresql+psycopg://pheme:pheme@localhost:5432/pheme_test",
+    # The app role (RLS applies) and the owner role (migrations, test housekeeping).
+    "PHEME_DATABASE_URL": "postgresql+psycopg://pheme_app:pheme_app@localhost:5432/pheme_test",
+    "PHEME_MIGRATION_DATABASE_URL": "postgresql+psycopg://pheme:pheme@localhost:5432/pheme_test",
+    "PHEME_AUTH_MODE": "none",
+    "PHEME_ENV": "test",
     "PHEME_REDIS_URL": "redis://localhost:6379/15",
     "PHEME_S3_BUCKET": "pheme-test",
     "PHEME_QUEUE_NAME": "pheme-test",
@@ -22,7 +26,7 @@ _TEST_ENV = {
 for _key, _default in _TEST_ENV.items():
     os.environ[_key] = os.environ.get(_key.replace("PHEME_", "PHEME_TEST_", 1), _default)
 
-from sqlalchemy import create_engine, text
+from sqlalchemy import Engine, create_engine, text
 from sqlalchemy.engine import make_url
 
 from app.core import db as core_db
@@ -40,7 +44,7 @@ def _clear_caches() -> None:
 
 
 def _ensure_database() -> None:
-    url = make_url(get_settings().database_url)
+    url = make_url(get_settings().migration_database_url)
     admin = create_engine(url.set(database="postgres"), isolation_level="AUTOCOMMIT")
     with admin.connect() as conn:
         exists = conn.execute(
@@ -83,3 +87,8 @@ def redis_conn() -> Iterator[object]:
     conn.flushdb()
     yield conn
     conn.flushdb()
+
+
+def owner_engine() -> Engine:
+    """Engine as the table owner (bypasses RLS): test housekeeping only."""
+    return create_engine(get_settings().migration_database_url)

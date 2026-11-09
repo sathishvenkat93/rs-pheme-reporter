@@ -4,6 +4,7 @@ from __future__ import annotations
 
 from functools import lru_cache
 from pathlib import Path
+from typing import Literal
 from uuid import UUID
 
 from pydantic import Field
@@ -24,7 +25,11 @@ class Settings(BaseSettings):
     env: str = "dev"
     log_level: str = "INFO"
 
-    database_url: str = "postgresql+psycopg://pheme:pheme@localhost:5432/pheme"
+    # The app connects as the non-owner role (row-level security applies to it); migrations
+    # run as the owner. An empty migration URL means "same as database_url".
+    database_url: str = "postgresql+psycopg://pheme_app:pheme_app@localhost:5432/pheme"
+    migration_database_url: str = "postgresql+psycopg://pheme:pheme@localhost:5432/pheme"
+    app_db_password: str = "pheme_app"  # noqa: S105 - dev default for the pheme_app role
     redis_url: str = "redis://localhost:6379/0"
 
     s3_endpoint: str = "localhost:8333"
@@ -36,6 +41,15 @@ class Settings(BaseSettings):
     max_upload_bytes: int = Field(default=200 * 1024 * 1024, gt=0)
     default_timezone: str = "UTC"
     local_cache_dir: Path = Path("/tmp/pheme-cache")  # noqa: S108 - dev default
+
+    # Auth: "none" (fixed dev user; refused in production), "dev" (email login, signed
+    # tokens) or "oidc" (bearer JWTs from an OIDC provider, verified against its JWKS).
+    auth_mode: Literal["none", "dev", "oidc"] = "none"
+    secret_key: str = "dev-only-secret-change-me-in-production-0000"  # noqa: S105 - dev default
+    session_ttl_s: int = Field(default=7 * 86_400, gt=0)
+    oidc_issuer: str = ""
+    oidc_audience: str = ""
+    oidc_workspace_claim: str = ""  # claim naming the workspace; default: the email domain
 
     dev_user_id: UUID = UUID("00000000-0000-0000-0000-000000000001")
     dev_workspace_id: UUID = UUID("00000000-0000-0000-0000-0000000000a1")

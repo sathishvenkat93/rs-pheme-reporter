@@ -15,7 +15,15 @@ from sqlalchemy.orm import Session
 
 from app.core.principal import Principal
 from app.core.security import Redactor, data_block
-from app.db.tables import DashboardRow, DatasetRow, DatasetVersionRow, Message, SessionRow, Upload
+from app.db.tables import (
+    AuditEvent,
+    DashboardRow,
+    DatasetRow,
+    DatasetVersionRow,
+    Message,
+    SessionRow,
+    Upload,
+)
 from app.feasibility.checks import check_request
 from app.feasibility.decisions import DecisionError, can_build, decision_for, resolve
 from app.models.chart import ChartRequest, FieldPhrase, OptionStatus, VisualOption
@@ -310,6 +318,15 @@ class Agent:
         events.publish(
             self.session.id, "tool_progress", {"tool": call.name, "ok": not call.is_error}
         )
+        self.audit(f"tool.{call.name}", {"input": call.input, "ok": not call.is_error})
+
+    def audit(self, action: str, payload: dict[str, Any]) -> None:
+        """Session-level audit event (tool calls, approvals, decisions)."""
+        self.db.add(
+            AuditEvent(workspace_id=self.session.workspace_id, actor_id=self.principal.user_id, action=action,
+                       target_type="session", target_id=str(self.session.id), payload=payload)
+        )  # fmt: skip
+        self.db.flush()
 
     def _execute(self, name: str, raw: dict[str, Any]) -> tuple[Any, bool]:
         spec = TOOLS[name]
@@ -337,6 +354,7 @@ class Agent:
             raise AgentError("The plan has no charts to build.")
         self.transition(State.APPROVED)
         row.approved_version = row.current_version
+        self.audit("plan.approve", {"plan_id": str(row.id), "version": row.current_version})
         self.commit()
         return plan
 
@@ -349,6 +367,10 @@ class Agent:
         plan = self._apply_choice(plan, decision.item, choice, detail)
         self.save_plan(plan, old=old)
         events.publish(self.session.id, "decision", {"id": decision_id, "choice": choice.value})
+        self.audit(
+            "decision.resolve",
+            {"decision_id": decision_id, "choice": choice.value, "detail": detail},
+        )
         self.commit()
         return self.plan()
 

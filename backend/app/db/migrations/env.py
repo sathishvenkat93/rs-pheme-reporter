@@ -9,7 +9,9 @@ from app.core.config import get_settings
 from app.db.tables import Base
 
 config = context.config
-config.set_main_option("sqlalchemy.url", get_settings().database_url)
+# Migrations run as the table owner; the app itself connects as the non-owner pheme_app role.
+_settings = get_settings()
+config.set_main_option("sqlalchemy.url", _settings.migration_database_url or _settings.database_url)
 
 target_metadata = Base.metadata
 

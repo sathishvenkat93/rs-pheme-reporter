@@ -5,12 +5,14 @@ from __future__ import annotations
 from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.api import dashboards, datasets, health, plans, query, sessions, uploads
+from app.api import auth, dashboards, datasets, health, plans, query, sessions, uploads
+from app.core.auth import check_startup
 from app.core.logging import configure_logging
 
 
 def create_app() -> FastAPI:
     configure_logging()
+    check_startup()
     app = FastAPI(title="Pheme API", version="0.1.0")
     app.add_middleware(
         CORSMiddleware,
@@ -20,6 +22,7 @@ def create_app() -> FastAPI:
     )
     for router in (
         health.router,
+        auth.router,
         sessions.router,
         uploads.router,
         datasets.router,

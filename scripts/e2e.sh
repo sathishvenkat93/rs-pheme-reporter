@@ -3,7 +3,8 @@
 set -euo pipefail
 cd "$(dirname "$0")/.."
 
-export PHEME_DATABASE_URL="postgresql+psycopg://pheme:pheme@localhost:5432/pheme_e2e"
+export PHEME_DATABASE_URL="postgresql+psycopg://pheme_app:pheme_app@localhost:5432/pheme_e2e"
+export PHEME_MIGRATION_DATABASE_URL="postgresql+psycopg://pheme:pheme@localhost:5432/pheme_e2e"
 export PHEME_REDIS_URL="redis://localhost:6379/14"
 export PHEME_S3_BUCKET="pheme-e2e"
 export PHEME_QUEUE_NAME="pheme-e2e"
@@ -22,7 +23,7 @@ from app.core.config import get_settings
 from app.core.storage import get_storage
 from app.core.redis import get_redis
 
-url = make_url(get_settings().database_url)
+url = make_url(get_settings().migration_database_url)
 admin = create_engine(url.set(database="postgres"), isolation_level="AUTOCOMMIT")
 with admin.connect() as c:
     c.execute(text(f'DROP DATABASE IF EXISTS "{url.database}" WITH (FORCE)'))

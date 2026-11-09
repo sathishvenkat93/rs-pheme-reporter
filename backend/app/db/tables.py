@@ -56,6 +56,7 @@ class Workspace(Base):
     __tablename__ = "workspaces"
     id: Mapped[uuid.UUID] = _pk()
     name: Mapped[str] = mapped_column(String(200))
+    max_upload_bytes: Mapped[int | None] = mapped_column(BigInteger)  # overrides the global limit
     created_at: Mapped[datetime] = _created()
 
 
@@ -222,8 +223,24 @@ class DashboardRow(Base):
     domain: Mapped[str | None] = mapped_column(String(32))
     tags: Mapped[list[str]] = mapped_column(JSONB, default=list, server_default="[]")
     current_version: Mapped[int] = mapped_column(Integer, default=1)
+    deleted_at: Mapped[datetime | None]  # soft delete (versions are append-only)
     created_at: Mapped[datetime] = _created()
     updated_at: Mapped[datetime] = mapped_column(server_default=func.now(), onupdate=func.now())
+
+
+class DashboardShare(Base):
+    """Per-dashboard role for a user in the same workspace (owner is DashboardRow.owner_id)."""
+
+    __tablename__ = "dashboard_shares"
+    __table_args__ = (UniqueConstraint("dashboard_id", "user_id"),)
+    id: Mapped[uuid.UUID] = _pk()
+    workspace_id: Mapped[uuid.UUID] = _ws()
+    dashboard_id: Mapped[uuid.UUID] = mapped_column(
+        ForeignKey("dashboards.id", ondelete="CASCADE"), index=True
+    )
+    user_id: Mapped[uuid.UUID] = mapped_column(ForeignKey("users.id", ondelete="CASCADE"))
+    role: Mapped[str] = mapped_column(String(16))  # editor | viewer
+    created_at: Mapped[datetime] = _created()
 
 
 class DashboardVersionRow(Base):

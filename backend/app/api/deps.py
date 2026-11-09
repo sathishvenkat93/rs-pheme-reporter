@@ -4,34 +4,30 @@ from __future__ import annotations
 
 from typing import Annotated
 
-from fastapi import Depends
+from fastapi import Cookie, Depends, Header, HTTPException, status
 from sqlalchemy.orm import Session
 
-from app.core.db import get_db
-from app.core.principal import Principal, current_principal
-from app.db.tables import User, Workspace
+from app.core.auth import COOKIE, AuthError, authenticate, token_from
+from app.core.db import get_db, scope
+from app.core.principal import Principal
 from app.orchestrator.llm import LLM, make_llm
 
 DB = Annotated[Session, Depends(get_db)]
 
 
-def principal(db: DB, who: Annotated[Principal, Depends(current_principal)]) -> Principal:
-    """The caller, with their workspace and user rows guaranteed to exist (dev bootstrap).
-
-    TODO(M12): real auth provisions these; drop the auto-create.
-    """
-    if db.get(Workspace, who.workspace_id) is None:
-        db.add(Workspace(id=who.workspace_id, name="Dev workspace"))
-        db.flush()
-    if db.get(User, who.user_id) is None:
-        db.add(
-            User(
-                id=who.user_id,
-                workspace_id=who.workspace_id,
-                email=f"dev+{who.user_id}@pheme.local",
-            )
-        )
-    db.commit()
+def principal(
+    db: DB,
+    authorization: Annotated[str | None, Header()] = None,
+    pheme_session: Annotated[str | None, Cookie(alias=COOKIE)] = None,
+) -> Principal:
+    """The authenticated caller. Scopes the request's DB session to their workspace (RLS)."""
+    try:
+        who = authenticate(db, token_from(authorization, pheme_session))
+    except AuthError as exc:
+        raise HTTPException(
+            status.HTTP_401_UNAUTHORIZED, str(exc), headers={"WWW-Authenticate": "Bearer"}
+        ) from None
+    scope(db, who.workspace_id)
     return who
 
 

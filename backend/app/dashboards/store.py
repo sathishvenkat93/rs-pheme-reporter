@@ -16,6 +16,7 @@ from sqlalchemy.orm import Session
 from app.db.tables import (
     AuditEvent,
     DashboardRow,
+    DashboardShare,
     DashboardVersionRow,
     DatasetRow,
     DatasetVersionRow,
@@ -58,11 +59,38 @@ def _version(row: DashboardVersionRow) -> Version:
                    row.change_note, row.created_at)  # fmt: skip
 
 
+ROLES = ("viewer", "editor", "owner")
+
+
+class Forbidden(Exception):
+    """The caller's dashboard role doesn't allow this (HTTP 403)."""
+
+
 def get(db: Session, dashboard_id: UUID, workspace_id: UUID) -> DashboardRow:
     row = db.get(DashboardRow, dashboard_id)
-    if row is None or row.workspace_id != workspace_id:
+    if row is None or row.workspace_id != workspace_id or row.deleted_at is not None:
         raise LookupError("Dashboard not found.")
     return row
+
+
+def role_for(db: Session, dash: DashboardRow, user_id: UUID) -> str:
+    """owner (creator) > a share's role > viewer (any member of the workspace)."""
+    if dash.owner_id == user_id:
+        return "owner"
+    share = db.scalars(
+        select(DashboardShare).where(
+            DashboardShare.dashboard_id == dash.id, DashboardShare.user_id == user_id
+        )
+    ).first()
+    return share.role if share else "viewer"
+
+
+def require(db: Session, dash: DashboardRow, user_id: UUID, needed: str) -> str:
+    role = role_for(db, dash, user_id)
+    if ROLES.index(role) < ROLES.index(needed):
+        verb = {"editor": "edit", "owner": "share or delete"}[needed]
+        raise Forbidden(f"You can view this dashboard but not {verb} it.")
+    return role
 
 
 def version(db: Session, dash: DashboardRow, n: int | None = None) -> Version:
@@ -171,6 +199,12 @@ def validate(db: Session, doc: dict[str, Any]) -> DashboardSpec:
 def _body(spec: DashboardSpec) -> dict[str, Any]:
     out: dict[str, Any] = spec.model_dump(mode="json", exclude_none=True)
     return out
+
+
+def audit(
+    db: Session, dash: DashboardRow, actor: UUID, action: str, payload: dict[str, Any]
+) -> None:
+    _audit(db, dash, actor, action, payload)
 
 
 def _audit(

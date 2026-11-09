@@ -20,13 +20,13 @@ ROOT = __import__("pathlib").Path(__file__).resolve().parents[2]
 
 @pytest.fixture
 def empty_db(monkeypatch: pytest.MonkeyPatch) -> Iterator[Engine]:
-    base = make_url(get_settings().database_url)
+    base = make_url(get_settings().migration_database_url)
     name = f"pheme_migrate_{uuid.uuid4().hex[:8]}"
     admin = create_engine(base.set(database="postgres"), isolation_level="AUTOCOMMIT")
     with admin.connect() as conn:
         conn.execute(text(f'CREATE DATABASE "{name}"'))
     url = base.set(database=name)
-    monkeypatch.setenv("PHEME_DATABASE_URL", url.render_as_string(hide_password=False))
+    monkeypatch.setenv("PHEME_MIGRATION_DATABASE_URL", url.render_as_string(hide_password=False))
     get_settings.cache_clear()
     engine = create_engine(url)
     try:
@@ -48,7 +48,7 @@ def test_upgrade_downgrade_upgrade(empty_db: Engine) -> None:
     command.upgrade(cfg, "head")
     tables = set(inspect(empty_db).get_table_names()) - {"alembic_version"}
     assert tables == set(Base.metadata.tables)
-    assert len(tables) == 15
+    assert len(tables) == 16  # + dashboard_shares (M12)
 
     command.downgrade(cfg, "base")
     assert set(inspect(empty_db).get_table_names()) <= {"alembic_version"}

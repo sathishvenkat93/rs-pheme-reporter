@@ -144,7 +144,7 @@ def test_session_context_is_stored_with_extracted_facts(client: TestClient) -> N
     from app.core.db import new_session
     from app.db.tables import SessionRow
 
-    with new_session() as db:
+    with new_session(bypass=True) as db:
         row = db.get(SessionRow, UUID(sid))
         assert row is not None
         assert row.context[0]["text"] == "p95 must be < 800 ms, env=staging"

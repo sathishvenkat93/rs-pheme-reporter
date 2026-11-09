@@ -19,7 +19,7 @@ def test_profile_endpoint_profiles_latest_version_and_caches(client: TestClient)
     assert body["row_count"] > 0
 
     assert client.get(f"/datasets/{dataset_id}/profile").json() == body
-    with new_session() as db:
+    with new_session(bypass=True) as db:
         assert db.scalar(select(func.count()).select_from(Profile)) == 1
 
     upload(client, FIXTURES / JUNIT[1], dataset_id=dataset_id)  # new version → new profile

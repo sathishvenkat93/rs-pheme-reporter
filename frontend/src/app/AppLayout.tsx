@@ -1,4 +1,5 @@
 import { NavLink, Outlet } from "react-router";
+import { LoginGate } from "./LoginGate";
 
 const linkClass = ({ isActive }: { isActive: boolean }) =>
   `rounded px-2 py-1 text-sm ${isActive ? "bg-surface-muted text-ink" : "text-ink-muted hover:text-ink"}`;
@@ -20,6 +21,7 @@ export function AppLayout() {
       <main className="min-h-0 flex-1">
         <Outlet />
       </main>
+      <LoginGate />
     </div>
   );
 }

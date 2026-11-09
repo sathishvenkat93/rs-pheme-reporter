@@ -9,17 +9,20 @@ from fastapi.testclient import TestClient
 from rq import SimpleWorker
 from sqlalchemy import text
 
-from app.core.db import get_engine
 from app.core.redis import get_queue
 from app.db.tables import Base
 from app.main import create_app
+
+from ..conftest import owner_engine
 
 
 @pytest.fixture
 def client(redis_conn: object) -> Iterator[TestClient]:
     tables = ", ".join(t.name for t in reversed(Base.metadata.sorted_tables))
-    with get_engine().begin() as conn:
+    engine = owner_engine()
+    with engine.begin() as conn:
         conn.execute(text(f"TRUNCATE {tables} CASCADE"))
+    engine.dispose()
     with TestClient(create_app()) as c:
         yield c
 

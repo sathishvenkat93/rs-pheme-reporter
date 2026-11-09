@@ -4,6 +4,57 @@
  */
 
 export interface paths {
+    "/auth/login": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Login */
+        post: operations["login_auth_login_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/logout": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        get?: never;
+        put?: never;
+        /** Logout */
+        post: operations["logout_auth_logout_post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/auth/me": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** Me */
+        get: operations["me_auth_me_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
     "/dashboards": {
         parameters: {
             query?: never;
@@ -32,11 +83,36 @@ export interface paths {
         get: operations["latest_dashboards__dashboard_id__get"];
         put?: never;
         post?: never;
-        delete?: never;
+        /**
+         * Delete
+         * @description Owner only. Soft delete: versions are append-only and stay for the audit trail.
+         */
+        delete: operations["delete_dashboards__dashboard_id__delete"];
         options?: never;
         head?: never;
         /** Patch */
         patch: operations["patch_dashboards__dashboard_id__patch"];
+        trace?: never;
+    };
+    "/dashboards/{dashboard_id}/audit": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /**
+         * Audit Trail
+         * @description Patches, restores, shares and deletes on the dashboard, plus its session's tool calls,
+         *     approvals and decisions.
+         */
+        get: operations["audit_trail_dashboards__dashboard_id__audit_get"];
+        put?: never;
+        post?: never;
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
         trace?: never;
     };
     "/dashboards/{dashboard_id}/data": {
@@ -104,6 +180,27 @@ export interface paths {
         put?: never;
         /** Restore */
         post: operations["restore_dashboards__dashboard_id__restore__n__post"];
+        delete?: never;
+        options?: never;
+        head?: never;
+        patch?: never;
+        trace?: never;
+    };
+    "/dashboards/{dashboard_id}/shares": {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        /** List Shares */
+        get: operations["list_shares_dashboards__dashboard_id__shares_get"];
+        put?: never;
+        /**
+         * Share
+         * @description Owner only. The user must belong to the same workspace.
+         */
+        post: operations["share_dashboards__dashboard_id__shares_post"];
         delete?: never;
         options?: never;
         head?: never;
@@ -499,6 +596,24 @@ export interface components {
             plan_version: number;
             /** State */
             state: string;
+        };
+        /** AuditOut */
+        AuditOut: {
+            /** Action */
+            action: string;
+            /** Actor Id */
+            actor_id: string | null;
+            /**
+             * Created At
+             * Format: date-time
+             */
+            created_at: string;
+            /** Payload */
+            payload: {
+                [key: string]: unknown;
+            };
+            /** Target Type */
+            target_type: string;
         };
         /** Body_create_upload_uploads_post */
         Body_create_upload_uploads_post: {
@@ -973,6 +1088,41 @@ export interface components {
             /** Y */
             y: number;
         };
+        /** LoginIn */
+        LoginIn: {
+            /** Email */
+            email: string;
+        };
+        /** LoginOut */
+        LoginOut: {
+            /** Token */
+            token: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
+        /** Me */
+        Me: {
+            /** Email */
+            email: string | null;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
+            /**
+             * Workspace Id
+             * Format: uuid
+             */
+            workspace_id: string;
+        };
         /**
          * Measure
          * @description A named measure. ``expr`` must parse in the measure grammar; it is never SQL.
@@ -1185,6 +1335,28 @@ export interface components {
             plan_id?: string | null;
             /** State */
             state: string;
+        };
+        /** ShareIn */
+        ShareIn: {
+            /** Email */
+            email: string;
+            /**
+             * Role
+             * @enum {string}
+             */
+            role: "editor" | "viewer";
+        };
+        /** ShareOut */
+        ShareOut: {
+            /** Email */
+            email: string;
+            /** Role */
+            role: string;
+            /**
+             * User Id
+             * Format: uuid
+             */
+            user_id: string;
         };
         /** SortKey */
         SortKey: {
@@ -1420,6 +1592,90 @@ export interface components {
 }
 export type $defs = Record<string, never>;
 export interface operations {
+    login_auth_login_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["LoginIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["LoginOut"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    logout_auth_logout_post: {
+        parameters: {
+            query?: never;
+            header?: never;
+            path?: never;
+            cookie?: never;
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+        };
+    };
+    me_auth_me_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["Me"];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     library_dashboards_get: {
         parameters: {
             query?: {
@@ -1428,9 +1684,13 @@ export interface operations {
                 tag?: string | null;
                 owner?: string | null;
             };
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path?: never;
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -1457,11 +1717,15 @@ export interface operations {
     latest_dashboards__dashboard_id__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 dashboard_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -1485,14 +1749,51 @@ export interface operations {
             };
         };
     };
-    patch_dashboards__dashboard_id__patch: {
+    delete_dashboards__dashboard_id__delete: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 dashboard_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            204: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content?: never;
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    patch_dashboards__dashboard_id__patch: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                dashboard_id: string;
+            };
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody: {
             content: {
@@ -1520,16 +1821,55 @@ export interface operations {
             };
         };
     };
+    audit_trail_dashboards__dashboard_id__audit_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                dashboard_id: string;
+            };
+            cookie?: {
+                pheme_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["AuditOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
     data_dashboards__dashboard_id__data_get: {
         parameters: {
             query?: {
                 version?: number | null;
             };
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 dashboard_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -1561,11 +1901,15 @@ export interface operations {
                 from: number;
                 to: number;
             };
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 dashboard_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -1594,11 +1938,15 @@ export interface operations {
     refresh_dashboard_dashboards__dashboard_id__refresh_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 dashboard_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody: {
             content: {
@@ -1631,12 +1979,16 @@ export interface operations {
     restore_dashboards__dashboard_id__restore__n__post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 dashboard_id: string;
                 n: number;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -1660,14 +2012,92 @@ export interface operations {
             };
         };
     };
-    list_versions_dashboards__dashboard_id__versions_get: {
+    list_shares_dashboards__dashboard_id__shares_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 dashboard_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
+        };
+        requestBody?: never;
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    share_dashboards__dashboard_id__shares_post: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                dashboard_id: string;
+            };
+            cookie?: {
+                pheme_session?: string | null;
+            };
+        };
+        requestBody: {
+            content: {
+                "application/json": components["schemas"]["ShareIn"];
+            };
+        };
+        responses: {
+            /** @description Successful Response */
+            200: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["ShareOut"][];
+                };
+            };
+            /** @description Validation Error */
+            422: {
+                headers: {
+                    [name: string]: unknown;
+                };
+                content: {
+                    "application/json": components["schemas"]["HTTPValidationError"];
+                };
+            };
+        };
+    };
+    list_versions_dashboards__dashboard_id__versions_get: {
+        parameters: {
+            query?: never;
+            header?: {
+                authorization?: string | null;
+            };
+            path: {
+                dashboard_id: string;
+            };
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -1694,12 +2124,16 @@ export interface operations {
     get_version_dashboards__dashboard_id__versions__n__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 dashboard_id: string;
                 n: number;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -1726,11 +2160,15 @@ export interface operations {
     get_dataset_datasets__dataset_id__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 dataset_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -1757,11 +2195,15 @@ export interface operations {
     get_profile_datasets__dataset_id__profile_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 dataset_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -1788,11 +2230,15 @@ export interface operations {
     decide_decisions__decision_id__post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 decision_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody: {
             content: {
@@ -1843,11 +2289,15 @@ export interface operations {
     get_plan_plans__plan_id__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 plan_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -1874,11 +2324,15 @@ export interface operations {
     get_decisions_plans__plan_id__decisions_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 plan_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -1905,9 +2359,13 @@ export interface operations {
     run_query_query_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path?: never;
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody: {
             content: {
@@ -1938,9 +2396,13 @@ export interface operations {
     create_session_sessions_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path?: never;
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: {
             content: {
@@ -1971,11 +2433,15 @@ export interface operations {
     get_session_sessions__session_id__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 session_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -2002,11 +2468,15 @@ export interface operations {
     approve_sessions__session_id__approve_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 session_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -2033,11 +2503,15 @@ export interface operations {
     add_context_sessions__session_id__context_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 session_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody: {
             content: {
@@ -2068,11 +2542,15 @@ export interface operations {
     apply_pending_edit_sessions__session_id__edit_apply_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 session_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -2099,11 +2577,15 @@ export interface operations {
     discard_pending_edit_sessions__session_id__edit_discard_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 session_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -2133,11 +2615,14 @@ export interface operations {
             };
             header?: {
                 "last-event-id"?: string | null;
+                authorization?: string | null;
             };
             path: {
                 session_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -2164,11 +2649,15 @@ export interface operations {
     list_messages_sessions__session_id__messages_get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 session_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
@@ -2195,11 +2684,15 @@ export interface operations {
     post_message_sessions__session_id__messages_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 session_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody: {
             content: {
@@ -2230,12 +2723,16 @@ export interface operations {
     toggle_option_sessions__session_id__options__option_id__post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 session_id: string;
                 option_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody: {
             content: {
@@ -2266,9 +2763,13 @@ export interface operations {
     create_upload_uploads_post: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path?: never;
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody: {
             content: {
@@ -2299,11 +2800,15 @@ export interface operations {
     get_upload_uploads__upload_id__get: {
         parameters: {
             query?: never;
-            header?: never;
+            header?: {
+                authorization?: string | null;
+            };
             path: {
                 upload_id: string;
             };
-            cookie?: never;
+            cookie?: {
+                pheme_session?: string | null;
+            };
         };
         requestBody?: never;
         responses: {
