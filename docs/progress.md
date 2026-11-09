@@ -21,7 +21,7 @@ Status of the build plan in [PHEME_IMPLEMENTATION.md](../PHEME_IMPLEMENTATION.md
 
 - [x] M8 Orchestrator (live-LLM run pending: no API key configured)
 - [x] M9 Dashboards & edits
-- [ ] Gate passed
+- [x] Gate passed (approved 2026-11-09; CI and the live-LLM run still pending)
 
 ## Phase 4 — User interface
 
